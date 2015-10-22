@@ -1,9 +1,9 @@
 class Flow:
-    """A flow to be simulated on the networks
+    """A flow to be simulated on the network
 
     Attributes:
         identifier: The unique identification of the flow
-        souce: The source host
+        source: The source host
         destination: The destination host
         startTime: The time in which the flow simulation begins
     """
