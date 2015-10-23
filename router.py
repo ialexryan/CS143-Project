@@ -12,7 +12,6 @@ class Router(Device):
         Device.__init__(self, identifier)
 
     # Called internally by routers to forward packets
-    # and called externally by flows to initiate packet sending
     def send_packet(self, packet):
         # Get packet destination from packet and decide
         # where to send packet next
