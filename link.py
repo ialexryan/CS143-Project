@@ -17,9 +17,15 @@ class Link:
         bufferB: The buffer storing packets from B to be sent to A
     """
 
-    def __init__(self, identifier, capacity):
+    def __init__(self, identifier, capacity, deviceA, deviceB):
         self.identifier = identifier
         self.capacity = capacity
         self.bufferA = Buffer()
         self.bufferB = Buffer()
+        self.deviceA = deviceA
+        self.deviceB = deviceB
 
+    # It is illegal but not enforced to send a packet
+    # from a device that isn't connected to this link
+    def sendPacket(self, packet, toDevice):
+        pass
