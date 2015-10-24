@@ -1,27 +1,30 @@
 class Buffer:
     """A buffer that holds packets that are waiting to send.
-        
-        """
-    
-    def __init__(self):
-        pass
+
+    Attributes:
+        size: The size of the buffer in KB
+    """
+
+    def __init__(self, size):
+        self.size = size
 
 class Link:
     """A network link from A to B.
 
     Attributes:
         identifier: The unique identification of the link
-        capacity: The rate at which the link sends packets
-        delay: The transmission delay between ends of the link
-        bufferA: The buffer storing packets from A to be sent to B
-        bufferB: The buffer storing packets from B to be sent to A
+        capacity: The rate at which the link sends packets in mbps
+        delay: The transmission delay between ends of the link in ms
+        buffer: The Buffer storing packets
+        deviceA: instance of Device
+        deviceB: instance of Device
     """
 
-    def __init__(self, identifier, capacity, deviceA, deviceB):
+    def __init__(self, identifier, rate, delay, buffer_size, deviceA, deviceB):
         self.identifier = identifier
-        self.capacity = capacity
-        self.bufferA = Buffer()
-        self.bufferB = Buffer()
+        self.rate = rate
+        self.delay = delay
+        self.buffer = Buffer(buffer_size)
         self.deviceA = deviceA
         self.deviceB = deviceB
 
