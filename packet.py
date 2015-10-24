@@ -21,3 +21,10 @@ class Packet:
         self.destination = destination
         self.packet_type = packet_type
         self.size = size
+
+    def __str__(self):
+        return ("Packet ID    " + self.identifier + "\n"
+                "source:      " + self.source.identifier + "\n"
+                "destination: " + self.destination.identifier + "\n"
+                "type:        " + self.packet_type + "\n"
+                "size:        " + str(self.size) + " bytes\n")

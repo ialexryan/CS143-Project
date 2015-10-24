@@ -28,6 +28,14 @@ class Link:
         self.deviceA = deviceA
         self.deviceB = deviceB
 
+    def __str__(self):
+        return ("Link ID   " + self.identifier + "\n"
+                "rate:     " + str(self.rate) + " mbps\n"
+                "delay:    " + str(self.delay) + " ms\n"
+                "buffer:   " + str(self.buffer.size) + " KB\n"
+                "device A: " + self.deviceA.identifier + "\n"
+                "device B: " + self.deviceB.identifier) + "\n"
+
     # It is illegal but not enforced to send a packet
     # from a device that isn't connected to this link
     def sendPacket(self, packet, toDevice):

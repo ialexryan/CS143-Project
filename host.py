@@ -10,6 +10,9 @@ class Host(Device):
     def __init__(self, identifier):
         Device.__init__(self, identifier)
 
+    def __str__(self):
+        return ("Host ID  " + self.identifier + "\n")
+
     def send_packet(self, packet):
         pass
 
