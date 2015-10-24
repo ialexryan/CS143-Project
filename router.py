@@ -10,6 +10,9 @@ class Router(Device):
     def __init__(self, identifier):
         Device.__init__(self, identifier)
 
+    def __str__(self):
+        return ("Router ID  " + self.identifier + "\n")
+
     # Called internally by routers to forward packets
     def send_packet(self, packet):
         # Get packet destination from packet and decide

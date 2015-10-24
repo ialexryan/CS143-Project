@@ -15,3 +15,10 @@ class Flow:
         self.destination = destination
         self.amount = amount
         self.startTime = startTime
+
+    def __str__(self):
+        return ("Flow ID      " + self.identifier + "\n"
+                "source:      " + self.source.identifier + "\n"
+                "destination: " + self.destination.identifier + "\n"
+                "amount:      " + str(self.amount) + " MB\n"
+                "startTime:   " + str(self.startTime) + " s\n")
