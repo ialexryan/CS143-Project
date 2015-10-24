@@ -9,7 +9,7 @@ class Flow:
         startTime: The time at which the flow simulation begins, in s
     """
 
-    def __init__(self, source, destination, amount, startTime):
+    def __init__(self, identifier, source, destination, amount, startTime):
         self.identifier = identifier
         self.source = source
         self.destination = destination
