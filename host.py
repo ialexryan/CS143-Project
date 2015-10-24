@@ -1,4 +1,3 @@
-import sys
 from device import Device
 
 class Host(Device):
