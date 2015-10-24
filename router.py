@@ -1,4 +1,3 @@
-import sys
 from device import Device
 
 class Router(Device):
@@ -15,7 +14,7 @@ class Router(Device):
     def send_packet(self, packet):
         # Get packet destination from packet and decide
         # where to send packet next
-        # Should calculate routing tables with decentralized 
+        # Should calculate routing tables with decentralized
         # shortest path algorithm
         pass
 
