@@ -1,13 +1,5 @@
-class PacketType:
-    """A simple class that represents the various packet types"""
-
-    # placeholders (I'm not sure what packet types we'll end up needing)
-    TYPEA = "TYPEA"
-    TYPEB = "TYPEB"
-
-
 class Packet:
-    """A network packet.
+    """A generic network packet.
 
     Attributes:
         source: The host that sent the packet
@@ -16,8 +8,21 @@ class Packet:
         size: The packet size, in bytes
     """
 
-    def __init__(self, source, destination, packet_type, size):
+    def __init__(self, source, destination, size):
         self.source = source
         self.destination = destination
-        self.packet_type = packet_type
         self.size = size
+
+
+class RoutingPacket(Packet):
+    """A routing packet. It contains routing tables and
+       is used by routers to communicate with each other.
+       Routing packets bypass the link buffer and aren't
+       logged.
+
+    Attributes:
+        routing_table: the RoutingTable"""
+
+    def __init__(self, source, destination, size, routing_table):
+        Packet.__init__(self, source, destination, size)
+        self.routing_table = routing_table
