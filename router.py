@@ -1,4 +1,3 @@
-import sys
 from device import Device
 
 class RoutingTable():
@@ -25,8 +24,10 @@ class Router(Device):
         Device.__init__(self, identifier)
         self.routing_table = RoutingTable()
 
+    def __str__(self):
+        return ("Router ID  " + self.identifier + "\n")
+
     # Called internally by routers to forward packets
-    # and called externally by flows to initiate packet sending
     def send_packet(self, packet):
         # Get packet destination from packet and decide
         # where to send packet next
