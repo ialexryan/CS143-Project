@@ -20,7 +20,7 @@ class Router(Device):
         routing_table: The instance of RoutingTable
     """
 
-    def __init__(self, identifier, links):
+    def __init__(self, identifier):
         Device.__init__(self, identifier)
         self.routing_table = RoutingTable()
         self.links = []
