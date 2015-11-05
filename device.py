@@ -14,3 +14,7 @@ class Device:
     # will use contents of the packet to decide what to do
     def handle_packet(self, packet):
         sys.exit("Abstract method handle_packet not implemented")
+
+    # Called during parsing to set up object graph
+    def attach_link(self, link):
+        sys.exit("Abstract method attach_link not implemented")

@@ -38,5 +38,5 @@ class Link:
 
     # It is illegal but not enforced to send a packet
     # from a device that isn't connected to this link
-    def sendPacket(self, packet, toDevice):
-        pass
+    def send_packet(self, packet, sender):
+        print "Packet crossing link"

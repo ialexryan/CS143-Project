@@ -30,7 +30,10 @@ def generate_simulation_from_testcase(input_dict):
         deviceB_id = l["endpoints"][1]
         deviceA = [ d.get(deviceA_id) for d in [hosts, routers] if deviceA_id in d ][0]
         deviceB = [ d.get(deviceB_id) for d in [hosts, routers] if deviceB_id in d ][0]
-        links[l["id"]] = Link(l["id"], l["rate"], l["delay"], l["buffer"], deviceA, deviceB)
+        link = Link(l["id"], l["rate"], l["delay"], l["buffer"], deviceA, deviceB)
+        deviceA.attach_link(link)
+        deviceB.attach_link(link)
+        links[l["id"]] = link
 
     flows = {}
     for f in flows_info:

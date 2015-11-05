@@ -19,6 +19,13 @@ class Packet:
                 "destination: " + self.destination.identifier + "\n"
                 "size:        " + str(self.size) + " bytes\n")
 
+class AcknowledgementPacket(Packet):
+    def __init__(self, source, destination, size):
+        Packet.__init__(self, source, destination, size)
+
+class PayloadPacket(Packet):
+    def __init__(self, source, destination, size):
+        Packet.__init__(self, source, destination, size)
 
 class RoutingPacket(Packet):
     """A routing packet. It contains routing tables and

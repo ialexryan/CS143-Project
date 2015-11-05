@@ -1,4 +1,6 @@
 from device import Device
+from packet import PayloadPacket, AcknowledgementPacket
+import sys
 
 class Host(Device):
     """A host
@@ -9,6 +11,7 @@ class Host(Device):
 
     def __init__(self, identifier):
         Device.__init__(self, identifier)
+        self.link = None
 
     def __str__(self):
         return ("Host ID  " + self.identifier + "\n")
@@ -21,4 +24,17 @@ class Host(Device):
         # - If this packet is a payload packet, respond
         #   by sending an acknowledgement packet across
         #   the same link
-        pass
+        if isinstance(packet, PayloadPacket):
+            print "Host: Sending packet"
+            self.link.send_packet(packet, self)
+        elif isinstance(packet, AcknowledgementPacket):
+            print "Host: Receiving acknowledgement"
+        else:
+            sys.exit("Unknown packet type")
+
+    # Called during parsing to set up object graph
+    def attach_link(self, link):
+        if self.link == None:
+            self.link = link
+        else:
+            sys.exit("Illegal to attach multiple links to a host")

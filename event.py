@@ -2,6 +2,8 @@
 # (time, Event) tuples. Then we get comparison for free.
 # The Simulation.add_event and Simulation.get_next_event functions are good
 
+from flow import Flow
+
 class Event:
     def perform(self):
         sys.exit("Abstract method perform not implemented")
@@ -37,4 +39,4 @@ class FlowWakeEvent(Event):
         self.flow = flow
 
     def perform(self):
-        pass
+        self.flow.wake()
