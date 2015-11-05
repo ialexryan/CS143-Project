@@ -1,4 +1,5 @@
 import Queue
+from event import Event
 
 class Simulation:
     """An instance of this class contains the data necessary
@@ -16,7 +17,7 @@ class Simulation:
 
     def __init__(self, links, flows, hosts, routers):
         self.event_queue = Queue.PriorityQueue()
-        self.global_time
+        self.global_time = 0
         self.links = links
         self.flows = flows
         self.hosts = hosts
@@ -36,6 +37,7 @@ class Simulation:
     def step():
         try:
             event = get_next_event()
+            event.perform()
             return True
         except Queue.Empty:
             return False
