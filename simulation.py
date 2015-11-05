@@ -28,10 +28,21 @@ class Simulation:
     def get_next_event(self):
         # This function gets an event from the queue, updates
         # the global timer accordingly, and returns the event
-        x = self.event_queue.get()
+        x = self.event_queue.get_nowait()
         assert x[0] >= self.global_time
         self.global_time = x[0]
         return x[1]
+    
+    def step():
+        try:
+            event = get_next_event()
+            return True
+        except Queue.Empty:
+            return False
+    
+    def run():
+        while step():
+            pass
 
     def __str__(self):
         return ("----LINKS----\n" + "\n".join(map(str, self.links.values())) + "\n"
