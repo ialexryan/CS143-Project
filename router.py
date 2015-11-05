@@ -23,6 +23,7 @@ class Router(Device):
     def __init__(self, identifier):
         Device.__init__(self, identifier)
         self.routing_table = RoutingTable()
+        self.links = []
 
     def __str__(self):
         return ("Router ID  " + self.identifier + "\n")
@@ -36,3 +37,6 @@ class Router(Device):
         # shortest path algorithm
         pass
 
+    # Called during parsing to set up object graph
+    def attach_link(self, link):
+        self.links.append(link)

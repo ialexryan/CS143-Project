@@ -23,7 +23,7 @@ class Simulation:
         self.hosts = hosts
         self.routers = routers
         for flow in flows.values():
-            self.add_event(flow.startTime, FlowWakeEvent(flow))
+            self.add_event(flow.start_time, FlowWakeEvent(flow))
 
     def add_event(self, time, event):
         self.event_queue.put((time, event))
