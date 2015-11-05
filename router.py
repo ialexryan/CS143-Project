@@ -27,14 +27,12 @@ class Router(Device):
     def __str__(self):
         return ("Router ID  " + self.identifier + "\n")
 
-    # Called internally by routers to forward packets
-    def send_packet(self, packet):
+    # Called by links in response to to forward packet to a
+    # given destination
+    def handle_packet(self, packet):
         # Get packet destination from packet and decide
         # where to send packet next
         # Should calculate routing tables with decentralized
         # shortest path algorithm
         pass
 
-    # Exclusively called by links to deliver packets
-    def receive_packet(self, packet):
-        pass
