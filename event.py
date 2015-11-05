@@ -9,10 +9,12 @@ class PacketArrivalEvent:
     Attributes:
         packet: the Packet that is being transmitted
         link: the Link that it's traveling on
+        device: the Device on the other end of the link to which it's traveling
     """
-    def __init__(self, packet, link):
+    def __init__(self, packet, link, device):
         self.packet = packet
         self.link = link
+        self.device = device
 
 
 class FlowStartEvent:

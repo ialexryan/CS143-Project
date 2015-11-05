@@ -33,7 +33,6 @@ class Simulation:
         self.global_time = x[0]
         return x[1]
 
-
     def __str__(self):
         return ("----LINKS----\n" + "\n".join(map(str, self.links.values())) + "\n"
                 "----FLOWS----\n" + "\n".join(map(str, self.flows.values())) + "\n"
