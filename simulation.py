@@ -1,4 +1,5 @@
 import Queue
+from event import Event
 
 class Simulation:
     """An instance of this class contains the data necessary
@@ -16,7 +17,7 @@ class Simulation:
 
     def __init__(self, links, flows, hosts, routers):
         self.event_queue = Queue.PriorityQueue()
-        self.global_time
+        self.global_time = 0
         self.links = links
         self.flows = flows
         self.hosts = hosts
@@ -28,10 +29,23 @@ class Simulation:
     def get_next_event(self):
         # This function gets an event from the queue, updates
         # the global timer accordingly, and returns the event
-        x = self.event_queue.get()
+        x = self.event_queue.get_nowait()
         assert x[0] >= self.global_time
         self.global_time = x[0]
         return x[1]
+    
+    def step(self):
+        print "STEP"
+        try:
+            event = self.get_next_event()
+            event.perform()
+            return True
+        except Queue.Empty:
+            return False
+    
+    def run(self):
+        while self.step():
+            pass
 
     def __str__(self):
         return ("----LINKS----\n" + "\n".join(map(str, self.links.values())) + "\n"
