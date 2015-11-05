@@ -37,10 +37,10 @@ class Simulation:
         return x[1]
     
     def step(self):
-        print "STEP"
         try:
             event = self.get_next_event()
             event.perform()
+            print event
             return True
         except Queue.Empty:
             return False
