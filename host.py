@@ -13,8 +13,12 @@ class Host(Device):
     def __str__(self):
         return ("Host ID  " + self.identifier + "\n")
 
-    def send_packet(self, packet):
-        pass
-
-    def receive_packet(self, packet):
+    # Called by flow to send payload and called by links
+    # in response to events in the event queue
+    def handle_packet(self, packet):
+        # - If this packet is an acknowledgment packet,
+        #   notify flow so it can do the bookkeeping
+        # - If this packet is a payload packet, respond
+        #   by sending an acknowledgement packet across
+        #   the same link
         pass
