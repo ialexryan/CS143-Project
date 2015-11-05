@@ -1,5 +1,5 @@
 import Queue
-from event import Event
+from event import Event, FlowWakeEvent
 
 class Simulation:
     """An instance of this class contains the data necessary
@@ -22,6 +22,8 @@ class Simulation:
         self.flows = flows
         self.hosts = hosts
         self.routers = routers
+        for flow in flows.values():
+            self.add_event(flow.startTime, FlowWakeEvent(flow))
 
     def add_event(self, time, event):
         self.event_queue.put((time, event))
@@ -35,10 +37,10 @@ class Simulation:
         return x[1]
     
     def step(self):
-        print "STEP"
         try:
             event = self.get_next_event()
             event.perform()
+            print event
             return True
         except Queue.Empty:
             return False
