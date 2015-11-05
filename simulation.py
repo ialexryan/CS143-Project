@@ -35,15 +35,16 @@ class Simulation:
         return x[1]
     
     def step(self):
+        print "STEP"
         try:
-            event = get_next_event()
+            event = self.get_next_event()
             event.perform()
             return True
         except Queue.Empty:
             return False
     
     def run(self):
-        while step():
+        while self.step():
             pass
 
     def __str__(self):
