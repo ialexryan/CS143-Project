@@ -12,25 +12,31 @@ class Host(Device):
     def __init__(self, identifier):
         Device.__init__(self, identifier)
         self.link = None
+        self.flow = None
 
     def __str__(self):
-        return ("Host ID  " + self.identifier + "\n")
+        return ("Host ID  " + self.identifier)
 
     # Called by flow to send payload and called by links
     # in response to events in the event queue
     def handle_packet(self, packet):
-        # - If this packet is an acknowledgment packet,
-        #   notify flow so it can do the bookkeeping
-        # - If this packet is a payload packet, respond
-        #   by sending an acknowledgement packet across
-        #   the same link
-        if isinstance(packet, PayloadPacket):
-            print "Host: Sending packet"
+        if packet.destination == self:
+            # - If this packet is an acknowledgment packet,
+            #   notify flow so it can do the bookkeeping
+            # - If this packet is a payload packet, respond
+            #   by sending an acknowledgement packet across
+            #   the same link
+            if isinstance(packet, PayloadPacket):
+                self.link.send_packet(packet.acknowledgement(), self)
+            elif isinstance(packet, AcknowledgementPacket):
+                self.flow.receive_acknowledgement(packet)
+            else:
+                sys.exit("Unknown packet type")
+        elif packet.source == self:
+            # Send packet across link
             self.link.send_packet(packet, self)
-        elif isinstance(packet, AcknowledgementPacket):
-            print "Host: Receiving acknowledgement"
         else:
-            sys.exit("Unknown packet type")
+            sys.exit("Illegal for host to handle a packet that it is neither source or destination of")
 
     # Called during parsing to set up object graph
     def attach_link(self, link):

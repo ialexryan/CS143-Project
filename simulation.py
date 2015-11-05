@@ -23,7 +23,10 @@ class Simulation:
         self.hosts = hosts
         self.routers = routers
         for flow in flows.values():
+            flow.event_scheduler = EventScheduler(self)
             self.add_event(flow.start_time, FlowWakeEvent(flow))
+        for link in links.values():
+            link.event_scheduler = EventScheduler(self)
 
     def add_event(self, time, event):
         self.event_queue.put((time, event))
@@ -40,7 +43,6 @@ class Simulation:
         try:
             event = self.get_next_event()
             event.perform()
-            print event
             return True
         except Queue.Empty:
             return False
@@ -54,3 +56,11 @@ class Simulation:
                 "----FLOWS----\n" + "\n".join(map(str, self.flows.values())) + "\n"
                 "----HOSTS----\n" + "\n".join(map(str, self.hosts.values())) + "\n"
                 "----ROUTERS----\n" + "\n".join(map(str, self.routers.values())))
+
+class EventScheduler:
+    def __init__(self, simulation):
+        self.simulation = simulation
+
+    def delay_event(self, delay, event):
+        self.simulation.add_event(self.simulation.global_time + delay, event)
+
