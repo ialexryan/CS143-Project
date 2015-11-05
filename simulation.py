@@ -34,7 +34,7 @@ class Simulation:
         self.global_time = x[0]
         return x[1]
     
-    def step():
+    def step(self):
         try:
             event = get_next_event()
             event.perform()
@@ -42,7 +42,7 @@ class Simulation:
         except Queue.Empty:
             return False
     
-    def run():
+    def run(self):
         while step():
             pass
 
