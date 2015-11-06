@@ -14,16 +14,29 @@ class PacketArrivalEvent(Event):
 
     Attributes:
         packet: the Packet that is being transmitted
-        link: the Link that it's traveling on
         device: the Device on the other end of the link to which it's traveling
     """
-    def __init__(self, packet, link, device):
+    def __init__(self, packet, device):
         self.packet = packet
-        self.link = link
         self.device = device
 
     def perform(self):
-        pass
+        self.device.handle_packet(self.packet)
+
+class LinkWakeEvent(Event):
+    """This event represents the delay between when a links
+        sends a given packet and when it can again send another
+        packet. This event wakes the link up to continue sending.
+        
+    Attributes:
+        link: the Link that's busy until the next wake
+    """
+
+    def __init__(self, link):
+        self.link = link
+    
+    def perform(self):
+        self.link.wake()
 
 
 class FlowWakeEvent(Event):

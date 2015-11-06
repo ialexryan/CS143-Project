@@ -40,7 +40,9 @@ def generate_simulation_from_testcase(input_dict):
         source_id = f["source"]
         destination_id = f["destination"]
         source = hosts.get(source_id)
-        destination = hosts.get(source_id)
-        flows[f["id"]] = Flow(f["id"], source, destination, f["amount"], f["start"])
+        destination = hosts.get(destination_id)
+        flow = Flow(f["id"], source, destination, f["amount"], f["start"])
+        flows[f["id"]] = flow
+        source.flow = flow
 
     return Simulation(links, flows, hosts, routers)

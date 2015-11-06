@@ -35,7 +35,7 @@ class Router(Device):
         # where to send packet next
         # Should calculate routing tables with decentralized
         # shortest path algorithm
-        pass
+        print "Router doesn't know what to do yet..."
 
     # Called during parsing to set up object graph
     def attach_link(self, link):
