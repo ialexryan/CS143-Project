@@ -9,6 +9,7 @@ class Flow:
         destination: The destination host
         amount: The amount of data to be transmitted, in MB
         start_time: The time at which the flow simulation begins, in s
+        event_scheduler: A reference to the global event scheduler
     """
 
     def __init__(self, identifier, source, destination, amount, start_time):

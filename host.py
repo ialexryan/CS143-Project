@@ -7,6 +7,7 @@ class Host(Device):
 
     Attributes:
         identifier: The unique identification of the host
+        flow: the Flow sending and receiving through this host
     """
 
     def __init__(self, identifier):

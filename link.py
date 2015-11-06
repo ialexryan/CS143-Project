@@ -6,7 +6,8 @@ class Buffer:
     """A buffer that holds packets that are waiting to send.
 
     Attributes:
-        size: The size of the buffer in KB
+        available_space: how much space in the buffer is free, in KB (should we switch this to bytes?)
+        queue: the Queue of packets waiting in the buffer
     """
 
     def __init__(self, size):
@@ -29,11 +30,13 @@ class Link:
 
     Attributes:
         identifier: The unique identification of the link
-        capacity: The rate at which the link sends packets in mbps
+        rate: The rate at which the link sends packets in mbps
         delay: The transmission delay between ends of the link in ms
         buffer: The Buffer storing packets
         deviceA: instance of Device
         deviceB: instance of Device
+        busy: true when the link is actively transmitting
+        event_schedule: reference to global event scheduler
     """
 
     def __init__(self, identifier, rate, delay, buffer_size, deviceA, deviceB):
@@ -55,9 +58,9 @@ class Link:
                 "device B: " + self.deviceB.identifier) + "\n"
 
     # Sends a packet instantly if the link is not busy
-    # or equeues the packet in the buffer if the link is busy
+    # or enqueues the packet in the buffer if the link is busy
     def send_packet(self, packet, sender):
-        
+
         # The recipient is whatever device is not the sender
         if sender == self.deviceA:
             recipient = self.deviceB
@@ -87,8 +90,6 @@ class Link:
         try:
             # If there are any packets in the buffer, send one
             (packet, destination) = self.buffer.get()
-            _send_packet(packet, destination)
+            self._send_packet_now(packet, destination)
         except Queue.Empty:
             pass
-
-
