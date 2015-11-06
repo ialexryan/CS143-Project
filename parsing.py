@@ -5,6 +5,10 @@ from host import Host
 from router import Router
 from simulation import Simulation
 
+BYTES_PER_KILOBYTE = 1024
+BYTES_PER_MEGABYTE = 1048576
+BYTES_PER_MEGABIT = 131072
+
 def read_testcases():
     with open('testcases.json') as testcases_file:
         return json.load(testcases_file)
@@ -30,7 +34,7 @@ def generate_simulation_from_testcase(input_dict):
         deviceB_id = l["endpoints"][1]
         deviceA = [ d.get(deviceA_id) for d in [hosts, routers] if deviceA_id in d ][0]
         deviceB = [ d.get(deviceB_id) for d in [hosts, routers] if deviceB_id in d ][0]
-        link = Link(l["id"], l["rate"], l["delay"], l["buffer"], deviceA, deviceB)
+        link = Link(l["id"], l["rate"] * BYTES_PER_MEGABIT, l["delay"], l["buffer"] * BYTES_PER_KILOBYTE, deviceA, deviceB)
         deviceA.attach_link(link)
         deviceB.attach_link(link)
         links[l["id"]] = link
@@ -41,7 +45,7 @@ def generate_simulation_from_testcase(input_dict):
         destination_id = f["destination"]
         source = hosts.get(source_id)
         destination = hosts.get(destination_id)
-        flow = Flow(f["id"], source, destination, f["amount"], f["start"])
+        flow = Flow(f["id"], source, destination, f["amount"] * BYTES_PER_MEGABYTE, f["start"])
         flows[f["id"]] = flow
         source.flow = flow
 

@@ -1,4 +1,4 @@
-import Queue
+import Queue, sys
 from event import Event, FlowWakeEvent
 
 class Simulation:
@@ -38,7 +38,7 @@ class Simulation:
         assert x[0] >= self.global_time
         self.global_time = x[0]
         return x[1]
-    
+
     def step(self):
         try:
             event = self.get_next_event()
@@ -46,10 +46,19 @@ class Simulation:
             return True
         except Queue.Empty:
             return False
-    
+
+    def all_flows_complete(self):
+        # there has got to be a cleaner one-line way to do this
+        all_complete = True
+        for flow in self.flows.values():
+            if not flow.complete:
+                all_complete = False
+        return all_complete
+
     def run(self):
         while self.step():
-            pass
+            if self.all_flows_complete():
+                sys.exit("All flows finished transmitting")
 
     def __str__(self):
         return ("----LINKS----\n" + "\n".join(map(str, self.links.values())) + "\n"
@@ -63,4 +72,3 @@ class EventScheduler:
 
     def delay_event(self, delay, event):
         self.simulation.add_event(self.simulation.global_time + delay, event)
-

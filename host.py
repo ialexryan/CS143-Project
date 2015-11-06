@@ -30,7 +30,7 @@ class Host(Device):
             if isinstance(packet, PayloadPacket):
                 self.link.send_packet(packet.acknowledgement(), self)
             elif isinstance(packet, AcknowledgementPacket):
-                self.flow.receive_acknowledgement(packet)
+                self.flow.acknowledgement_received(packet)
             else:
                 sys.exit("Unknown packet type")
         elif packet.source == self:
