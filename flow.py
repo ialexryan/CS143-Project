@@ -7,7 +7,7 @@ class Flow:
         identifier: The unique identification of the flow
         source: The source host
         destination: The destination host
-        amount: The amount of data to be transmitted, in MB
+        amount: The amount of data to be transmitted, in bytes
         start_time: The time at which the flow simulation begins, in s
         event_scheduler: A reference to the global event scheduler
     """
@@ -24,7 +24,7 @@ class Flow:
         return ("Flow ID      " + self.identifier + "\n"
                 "source:      " + self.source.identifier + "\n"
                 "destination: " + self.destination.identifier + "\n"
-                "amount:      " + str(self.amount) + " MB\n"
+                "amount:      " + str(self.amount) + " bytes\n"
                 "start_time:   " + str(self.start_time) + " s\n")
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets

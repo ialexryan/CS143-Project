@@ -6,7 +6,7 @@ class Buffer:
     """A buffer that holds packets that are waiting to send.
 
     Attributes:
-        available_space: how much space in the buffer is free, in KB (should we switch this to bytes?)
+        available_space: how much space in the buffer is free, in bytes
         queue: the Queue of packets waiting in the buffer
     """
 
@@ -30,7 +30,7 @@ class Link:
 
     Attributes:
         identifier: The unique identification of the link
-        rate: The rate at which the link sends packets in mbps
+        rate: The rate at which the link sends packets in bytes per second
         delay: The transmission delay between ends of the link in ms
         buffer: The Buffer storing packets
         deviceA: instance of Device
@@ -53,7 +53,7 @@ class Link:
         return ("Link ID   " + self.identifier + "\n"
                 "rate:     " + str(self.rate) + " mbps\n"
                 "delay:    " + str(self.delay) + " ms\n"
-                "buffer:   " + str(self.buffer.size) + " KB\n"
+                "buffer:   " + str(self.buffer.size) + " bytes\n"
                 "device A: " + self.deviceA.identifier + "\n"
                 "device B: " + self.deviceB.identifier) + "\n"
 
