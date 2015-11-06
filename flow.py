@@ -1,5 +1,7 @@
 from packet import PayloadPacket, AcknowledgementPacket
 
+PACKET_SIZE = 1024 #bytes
+
 class Flow:
     """A flow to be simulated on the network
 
@@ -10,6 +12,7 @@ class Flow:
         amount: The amount of data to be transmitted, in bytes
         start_time: The time at which the flow simulation begins, in s
         event_scheduler: A reference to the global event scheduler
+        complete: This flow has successfully transmitted all its data
     """
 
     def __init__(self, identifier, source, destination, amount, start_time):
@@ -19,6 +22,7 @@ class Flow:
         self.amount = amount
         self.start_time = start_time
         self.event_scheduler = None
+        self.complete = False
 
     def __str__(self):
         return ("Flow ID      " + self.identifier + "\n"
@@ -29,14 +33,21 @@ class Flow:
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets
     def wake(self):
-        # NOTE THAT THIS IMPLEMENTATION IS JUST FOR TESTING
-        # We need to change this to use some clever algorithm.
-        packet = PayloadPacket(self.source, self.destination, 1024)
-        self.source.handle_packet(packet)
+        self.send_a_packet()
 
-    # Called by a link's host whenever an acknowledgement is recieved
-    def receive_acknowledgement(self, packet):
+    def send_a_packet(self):
+        if (self.amount > 0):
+            print "Flow: sending packet"
+            packet = PayloadPacket(self.source, self.destination, PACKET_SIZE)
+            self.source.handle_packet(packet)
+        else:
+            self.complete = True
+
+    # Called by a link's host whenever an acknowledgement is received
+    def acknowledgement_received(self, packet):
+        assert isinstance(packet, AcknowledgementPacket)
         assert packet.source == self.destination
         assert packet.destination == self.source
-        assert isinstance(packet, AcknowledgementPacket)
-        print "Flow: Receiving acknowledgement"
+        print "Flow: Received acknowledgement"
+        self.amount -= PACKET_SIZE
+        self.send_a_packet()
