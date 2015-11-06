@@ -35,7 +35,11 @@ class Router(Device):
         # where to send packet next
         # Should calculate routing tables with decentralized
         # shortest path algorithm
-        print "Router doesn't know what to do yet..."
+                
+        # Use static routing
+        dest = packet.destination
+        link = self.routing_table.get(dest.identifier)
+        link.send_packet(packet, self)
 
     # Called during parsing to set up object graph
     def attach_link(self, link):
