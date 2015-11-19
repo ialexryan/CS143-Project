@@ -11,7 +11,7 @@ class RoutingTable():
     def __init__(self):
         self.table = {}
     
-    def get(self, identifier):
+    def get_entry(self, identifier):
         return self.table.get(identifier)
             
     def set_entry(self, identifier, link):
@@ -44,7 +44,7 @@ class Router(Device):
                 
         # Use static routing
         dest = packet.destination
-        link = self.routing_table.get(dest.identifier)
+        link = self.routing_table.get_entry(dest.identifier)
         link.send_packet(packet, self)
 
     # Called during parsing to set up object graph
