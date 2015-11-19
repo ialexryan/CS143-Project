@@ -10,6 +10,12 @@ class RoutingTable():
 
     def __init__(self):
         self.table = {}
+    
+    def get(self, identifier):
+        return self.table.get(identifier)
+            
+    def set_entry(self, identifier, link):
+        self.table[identifier] = link    
 
 
 class Router(Device):
@@ -44,3 +50,8 @@ class Router(Device):
     # Called during parsing to set up object graph
     def attach_link(self, link):
         self.links.append(link)
+
+    # Called during parsing to add an entry to the routing table
+    # for hardcoded static routing
+    def add_table_entry(self, destination, link):
+        self.routing_table.set_entry(destination, link)
