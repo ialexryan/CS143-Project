@@ -1,5 +1,6 @@
-{
-    "testcase0":{
+[
+    {
+	"testcase_num": 0,
         "links":[
             {
                 "id":"L1",
@@ -33,7 +34,8 @@
 
         ]
     },
-    "testcase1":{
+    {
+	"testcase_num": 1,
         "links":[
             {
                 "id":"L0",
@@ -128,7 +130,8 @@
             }
         ]
     },
-    "testcase2":{
+    {
+	"testcase_num": 2,
         "links":[
             {
                 "id":"L1",
@@ -279,4 +282,4 @@
             }
         ]
     }
-}
+]

@@ -39,13 +39,8 @@ def generate_simulation_from_testcase(input_dict):
         deviceB.attach_link(link)
         links[l["id"]] = link
     
-    testcase = 0;
-    if (len(links) == 6):
-        testcase = 1
-        print "test case 1"
-    elif (len(links) == 9):
-        testcase = 2
-    generate_routing_table(testcase, routers, links)
+    testcase_num = input_dict["testcase_num"];
+    generate_routing_table(testcase_num, routers, links)
 
     flows = {}
     for f in flows_info:
@@ -59,8 +54,8 @@ def generate_simulation_from_testcase(input_dict):
 
     return Simulation(links, flows, hosts, routers)
 
-def generate_routing_table(testcase, routers, links):
-    if (testcase == 1):
+def generate_routing_table(testcase_num, routers, links):
+    if (testcase_num == 1):
         routers["R1"].add_table_entry("H1", links.get("L0"))
         routers["R1"].add_table_entry("H2", links.get("L1"))
         routers["R2"].add_table_entry("H1", links.get("L1"))
@@ -69,7 +64,7 @@ def generate_routing_table(testcase, routers, links):
         routers["R3"].add_table_entry("H2", links.get("L4"))
         routers["R4"].add_table_entry("H1", links.get("L4"))
         routers["R4"].add_table_entry("H2", links.get("L5"))
-    elif (testcase == 2):
+    elif (testcase_num == 2):
         routers["R1"].add_table_entry("T1", links.get("L1"))
         routers["R1"].add_table_entry("T2", links.get("L1"))
         routers["R1"].add_table_entry("S1", links.get("L4"))
