@@ -58,7 +58,9 @@ class Simulation:
     def run(self):
         while self.step():
             if self.all_flows_complete():
-                sys.exit("All flows finished transmitting")
+		print "All flows finished transmitting!"
+		print "Elapsed time in simulation world: " + str(self.global_time / 1000) + "s"
+                exit()
 
     def __str__(self):
         return ("----LINKS----\n" + "\n".join(map(str, self.links.values())) + "\n"
