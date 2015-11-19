@@ -38,9 +38,14 @@ class Router(Device):
                 
         # Use static routing
         dest = packet.destination
-        link = self.routing_table.get(dest.identifier)
+        link = self.routing_table.table.get(dest.identifier)
         link.send_packet(packet, self)
 
     # Called during parsing to set up object graph
     def attach_link(self, link):
         self.links.append(link)
+
+    # Called during parsing to add an entry to the routing table
+    # for hardcoded static routing
+    def add_table_entry(self, destination, link):
+        self.routing_table.table[destination] = link
