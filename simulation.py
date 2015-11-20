@@ -55,17 +55,9 @@ class Simulation:
         except Queue.Empty:
             return False
 
-    def all_flows_complete(self):
-        # there has got to be a cleaner one-line way to do this
-        all_complete = True
-        for flow in self.flows.values():
-            if not flow.complete:
-                all_complete = False
-        return all_complete
-
     def run(self):
         while self.step():
-            if self.all_flows_complete():
+            pass
 		print "All flows finished transmitting!"
         print "Elapsed time in simulation world: " + str(self.global_time / 1000) + "s"
         exit()
