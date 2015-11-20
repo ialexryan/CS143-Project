@@ -1,7 +1,5 @@
 from packet import PayloadPacket, AcknowledgementPacket
 
-PACKET_SIZE = 1024 #bytes
-
 class Flow:
     """A flow to be simulated on the network
 
@@ -38,7 +36,7 @@ class Flow:
     def send_a_packet(self):
         if (self.amount > 0):
             print "Flow: sending packet"
-            packet = PayloadPacket(self.source, self.destination, PACKET_SIZE)
+            packet = PayloadPacket(self.source, self.destination)
             self.source.handle_packet(packet)
         else:
             self.complete = True

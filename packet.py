@@ -21,11 +21,11 @@ class Packet:
 
 class AcknowledgementPacket(Packet):
     def __init__(self, source, destination):
-        Packet.__init__(self, source, destination, 512)
+        Packet.__init__(self, source, destination, 64)
 
 class PayloadPacket(Packet):
-    def __init__(self, source, destination, size):
-        Packet.__init__(self, source, destination, size)
+    def __init__(self, source, destination):
+        Packet.__init__(self, source, destination, 1024)
 
     def acknowledgement(self):
         return AcknowledgementPacket(self.destination, self.source)
