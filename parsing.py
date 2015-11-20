@@ -52,7 +52,7 @@ def generate_simulation_from_testcase(input_dict):
         flows[f["id"]] = flow
         source.flow = flow
 
-    return Simulation(links, flows, hosts, routers)
+    return Simulation(links, flows, hosts, routers, True) # verbose
 
 def generate_routing_table(testcase_num, routers, links):
     if (testcase_num == 1):
