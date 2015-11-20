@@ -45,6 +45,7 @@ class Router(Device):
         # Use static routing
         dest = packet.destination
         link = self.routing_table.get_entry(dest.identifier)
+        self.logger.log_router_sending_packet(self.identifier, packet, link.identifier)
         link.send_packet(packet, self)
 
     # Called during parsing to set up object graph

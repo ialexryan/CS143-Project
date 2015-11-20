@@ -1,5 +1,6 @@
 import Queue, sys
 from event import Event, FlowWakeEvent
+from logger import Logger
 
 class Simulation:
     """An instance of this class contains the data necessary
@@ -15,18 +16,25 @@ class Simulation:
         routers: dictionary of routers (key is the ID, value is the Router object)
     """
 
-    def __init__(self, links, flows, hosts, routers):
+    def __init__(self, links, flows, hosts, routers, verbose):
         self.event_queue = Queue.PriorityQueue()
         self.global_time = 0
         self.links = links
         self.flows = flows
         self.hosts = hosts
         self.routers = routers
+        
+        # Setup event scheduling
         for flow in flows.values():
             flow.event_scheduler = EventScheduler(self)
             self.add_event(flow.start_time, FlowWakeEvent(flow))
         for link in links.values():
             link.event_scheduler = EventScheduler(self)
+        
+        # Setup logging
+        self.logger = Logger(self, verbose)
+        for object in flows.values() + links.values() + hosts.values() + routers.values():
+            object.logger = self.logger
 
     def add_event(self, time, event):
         self.event_queue.put((time, event))
@@ -59,8 +67,8 @@ class Simulation:
         while self.step():
             if self.all_flows_complete():
 		print "All flows finished transmitting!"
-		print "Elapsed time in simulation world: " + str(self.global_time / 1000) + "s"
-                exit()
+        print "Elapsed time in simulation world: " + str(self.global_time / 1000) + "s"
+        exit()
 
     def __str__(self):
         return ("----LINKS----\n" + "\n".join(map(str, self.links.values())) + "\n"

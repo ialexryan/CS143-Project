@@ -22,6 +22,7 @@ class Flow:
         self.amount = amount
         self.start_time = start_time
         self.event_scheduler = None
+        self.logger = None
         self.complete = False
 
     def __str__(self):
@@ -37,8 +38,8 @@ class Flow:
 
     def send_a_packet(self):
         if (self.amount > 0):
-            print "Flow: sending packet"
             packet = PayloadPacket(self.source, self.destination, PACKET_SIZE)
+            self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.handle_packet(packet)
         else:
             self.complete = True
@@ -48,6 +49,6 @@ class Flow:
         assert isinstance(packet, AcknowledgementPacket)
         assert packet.source == self.destination
         assert packet.destination == self.source
-        print "Flow: Received acknowledgement"
+        self.logger.log_flow_received_acknowledgement(self.identifier, packet)
         self.amount -= PACKET_SIZE
         self.send_a_packet()
