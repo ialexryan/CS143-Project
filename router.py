@@ -12,24 +12,24 @@ class RoutingTable():
     def __init__(self):
         self.table = {}
     
-    def get_entry(self, host):
-        if host in self.table:
-            return self.table[host][1]
+    def get_entry(self, host_identifier):
+        if host_identifier in self.table:
+            return self.table[host_identifier][1]
         else:
             return None
 
-    def _update_entry(self, host, timestamp, link):
-        self.table[host] = (timestamp, link)
+    def _update_entry(self, host_identifier, timestamp, link):
+        self.table[host_identifier] = (timestamp, link)
 
     # Returns true when the information updated the routing table
-    def update_entry(self, host, timestamp, link):
-        if host not in self.table:
-            self._update_entry(host, timestamp, link)
+    def update_entry(self, host_identifier, timestamp, link):
+        if host_identifier not in self.table:
+            self._update_entry(host_identifier, timestamp, link)
             return True
         else:
-            (old_timestamp, _) = self.table[host]
+            (old_timestamp, _) = self.table[host_identifier]
             if timestamp > old_timestamp:
-                self._update_entry(host, timestamp, link)
+                self._update_entry(host_identifier, timestamp, link)
                 return True
             else:
                 return False
@@ -53,7 +53,7 @@ class Router(Device):
     def _handle_routing_packet(self, packet, from_link):
         assert isinstance(packet, RoutingPacket)
         previous_link = self.routing_table.get_entry(packet.source) # Used for logging
-        if self.routing_table.update_entry(packet.source, packet.timestamp, from_link):
+        if self.routing_table.update_entry(packet.source.identifier, packet.timestamp, from_link):
             if from_link is not previous_link:
                 self.logger.log_updated_routing_table(self.identifier, packet.source.identifier, from_link.identifier, packet.timestamp)
             for link in self.links:

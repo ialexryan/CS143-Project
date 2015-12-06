@@ -68,7 +68,7 @@ class Logger:
 
     def log_router_dropped_packet_unknown_path(self, router_id, packet):
         if self.verbose:
-            print str(self.clock) + ": Router " + str(router_id) + " dropped packet due to unknown path: " + str(packet)
+            print str(self.clock) + ": Router " + str(router_id) + " dropped packet because next hop is unknown: " + str(packet)
         self.router_dropped_packet_unknown_path_logs.append({
              "time" : self.clock.current_time,
              "router_id" : router_id,
