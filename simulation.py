@@ -26,7 +26,7 @@ class Simulation:
         self.flows = flows
         self.hosts = hosts
         self.routers = routers
-        
+
         event_scheduler = EventScheduler(self)
         
         # Set up event schedulers
@@ -45,6 +45,7 @@ class Simulation:
         
         # Set up logging
         self.logger = Logger(self.clock, verbose)
+
         for object in flows.values() + links.values() + hosts.values() + routers.values():
             object.logger = self.logger
 
