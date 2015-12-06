@@ -23,14 +23,14 @@ class Simulation:
         self.flows = flows
         self.hosts = hosts
         self.routers = routers
-        
+
         # Setup event scheduling
         for flow in flows.values():
             flow.event_scheduler = EventScheduler(self)
             self.add_event(flow.start_time, FlowWakeEvent(flow))
         for link in links.values():
             link.event_scheduler = EventScheduler(self)
-        
+
         # Setup logging
         self.logger = Logger(self, verbose)
         for object in flows.values() + links.values() + hosts.values() + routers.values():
@@ -58,7 +58,7 @@ class Simulation:
     def run(self):
         while self.step():
             pass
-		print "All flows finished transmitting!"
+        print "All flows finished transmitting!"
         print "Elapsed time in simulation world: " + str(self.global_time / 1000) + "s"
         exit()
 
