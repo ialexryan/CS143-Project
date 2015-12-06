@@ -53,3 +53,16 @@ class FlowWakeEvent(Event):
 
     def perform(self):
         self.flow.wake()
+        
+class RoutingTableUpdateEvent(Event):
+    """This event represents the updating of a routing table.
+
+    Attributes:
+        table: the Routing Table that is being updated
+    """
+    def __init__(self, table):
+        self.table = table
+
+    def perform(self):
+        #updating routing table not yet implemented
+        pass
