@@ -49,7 +49,7 @@ class PayloadPacket(StandardPacket):
     """
     
     def __init__(self, source, destination):
-        Packet.__init__(self, source, destination, 1024)
+        StandardPacket.__init__(self, source, destination, 1024)
 
     def acknowledgement(self):
         return AcknowledgementPacket(self.destination, self.source)
@@ -71,7 +71,7 @@ class AcknowledgementPacket(StandardPacket):
     """
     
     def __init__(self, source, destination):
-        Packet.__init__(self, source, destination, 64)
+        StandardPacket.__init__(self, source, destination, 64)
 
     def __str__(self):
         return ("AcknowledgementPacket\n"
