@@ -23,13 +23,13 @@ class PacketArrivalEvent(Event):
     def perform(self):
         self.device.handle_packet(self.packet)
 
-class LinkWakeEvent(Event):
+class LinkReadyEvent(Event):
     """This event represents the delay between when a links
         sends a given packet and when it can again send another
         packet. This event wakes the link up to continue sending.
         
     Attributes:
-        link: the Link that's busy until the next wake
+        link: The Link that's busy until the next wake
     """
 
     def __init__(self, link):
@@ -54,15 +54,16 @@ class FlowWakeEvent(Event):
     def perform(self):
         self.flow.wake()
         
-class RoutingTableUpdateEvent(Event):
-    """This event represents the updating of a routing table.
+class RoutingUpdateEvent(Event):
+    """This event triggers a routing table update by instructing
+       its associated host to send a routing packet.
 
     Attributes:
-        table: the Routing Table that is being updated
+        host: the host for which the routing information needs be updated
     """
-    def __init__(self, table):
-        self.table = table
+    def __init__(self, host):
+        self.host = host
 
     def perform(self):
-        #updating routing table not yet implemented
+        self.host.send_routing_packet()
         pass
