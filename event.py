@@ -16,12 +16,13 @@ class PacketArrivalEvent(Event):
         packet: the Packet that is being transmitted
         device: the Device on the other end of the link to which it's traveling
     """
-    def __init__(self, packet, device):
+    def __init__(self, packet, device, from_link):
         self.packet = packet
+        self.from_link = from_link
         self.device = device
 
     def perform(self):
-        self.device.handle_packet(self.packet)
+        self.device.handle_packet(self.packet, self.from_link)
 
 class LinkReadyEvent(Event):
     """This event represents the delay between when a links
@@ -66,4 +67,3 @@ class RoutingUpdateEvent(Event):
 
     def perform(self):
         self.host.send_routing_packet()
-        pass

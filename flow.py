@@ -38,7 +38,7 @@ class Flow:
         if (self.amount > 0):
             packet = PayloadPacket(self.source, self.destination)
             self.logger.log_flow_send_packet(self.identifier, packet)
-            self.source.handle_packet(packet)
+            self.source.send_packet(packet)
         else:
             self.complete = True
 
@@ -48,5 +48,8 @@ class Flow:
         assert packet.source == self.destination
         assert packet.destination == self.source
         self.logger.log_flow_received_acknowledgement(self.identifier, packet)
-        self.amount -= PACKET_SIZE
+        self.amount -= 1024 # TODO: Don't hardcode.
         self.send_a_packet()
+
+    def completed(self):
+        return self.amount is 0
