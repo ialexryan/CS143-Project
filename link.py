@@ -1,6 +1,6 @@
 import sys
 import Queue
-from event import LinkWakeEvent, PacketArrivalEvent
+from event import LinkReadyEvent, PacketArrivalEvent
 
 class Buffer:
     """A buffer that holds packets that are waiting to send.
@@ -82,9 +82,9 @@ class Link:
 
         sending_delay = packet.size / self.rate
         self.event_scheduler.delay_event(sending_delay + self.delay, PacketArrivalEvent(packet, recipient))
-        self.event_scheduler.delay_event(sending_delay, LinkWakeEvent(self))
+        self.event_scheduler.delay_event(sending_delay, LinkReadyEvent(self))
 
-    # Called by LinkWakeEvent when the link is no longer busy
+    # Called by LinkReadyEvent when the link is no longer busy
     def wake(self):
         self.busy = False
         try:
