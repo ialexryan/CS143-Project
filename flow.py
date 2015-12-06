@@ -48,5 +48,5 @@ class Flow:
         assert packet.source == self.destination
         assert packet.destination == self.source
         self.logger.log_flow_received_acknowledgement(self.identifier, packet)
-        self.amount -= PACKET_SIZE
+        self.amount -= 1024
         self.send_a_packet()
