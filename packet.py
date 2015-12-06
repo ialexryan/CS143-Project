@@ -1,5 +1,6 @@
 class Packet:
     """A generic network packet.
+       Superclass of StandardPacket and RoutingPacket.
 
     Attributes:
         source: The host that sent the packet
@@ -8,9 +9,7 @@ class Packet:
         size: The packet size, in bytes
     """
 
-    def __init__(self, source, destination, size):
-        self.source = source
-        self.destination = destination
+    def __init__(self, size):
         self.size = size
 
     def __str__(self):
@@ -19,32 +18,85 @@ class Packet:
                 "destination: " + self.destination.identifier + "\n"
                 "size:        " + str(self.size) + " bytes\n")
 
-class AcknowledgementPacket(Packet):
-    def __init__(self, source, destination):
-        Packet.__init__(self, source, destination, 64)
+class StandardPacket(Packet):
+    """A packet for sending information between hosts on the network.
+       Superclass of PayloadPacket and AcknowledgementPacket.
 
-class PayloadPacket(Packet):
+    Attributes:
+        source: The host that sent the packet
+        destination: The host to which the packet was sent
+        size: The packet size, in bytes
+    """
+    
+    def __init__(self, source, destination, size):
+        Packet.__init__(self, size)
+        self.source = source
+        self.destination = destination
+
+    def __str__(self):
+        return ("StandardPacket\n"
+                "source:      " + self.source.identifier + "\n"
+                "destination: " + self.destination.identifier + "\n"
+                "size:        " + str(self.size) + " bytes\n")
+
+class PayloadPacket(StandardPacket):
+    """A packet for sending information to another host on the network.
+
+    Attributes:
+        source: The host that sent the packet
+        destination: The host to which the packet was sent
+        size: The packet size, in bytes
+    """
+    
     def __init__(self, source, destination):
         Packet.__init__(self, source, destination, 1024)
 
     def acknowledgement(self):
         return AcknowledgementPacket(self.destination, self.source)
 
-class RoutingPacket(Packet):
-    """A routing packet. It contains routing tables and
-       is used by routers to communicate with each other.
-       Routing packets bypass the link buffer and aren't
-       logged.
+    def __str__(self):
+        return ("PayloadPacket\n"
+                "source:      " + self.source.identifier + "\n"
+                "destination: " + self.destination.identifier + "\n"
+                "size:        " + str(self.size) + " bytes\n")
+
+class AcknowledgementPacket(StandardPacket):
+    """A packet for acknowledging receipt of a PayloadPacket
+       from another host on the network.
 
     Attributes:
-        routing_table: the RoutingTable"""
+        source: The host that sent the packet
+        destination: The host to which the packet was sent
+        size: The packet size, in bytes
+    """
+    
+    def __init__(self, source, destination):
+        Packet.__init__(self, source, destination, 64)
 
-    def __init__(self, source, destination, size, routing_table):
-        Packet.__init__(self, source, destination, size)
-        self.routing_table = routing_table
+    def __str__(self):
+        return ("AcknowledgementPacket\n"
+                "source:      " + self.source.identifier + "\n"
+                "destination: " + self.destination.identifier + "\n"
+                "size:        " + str(self.size) + " bytes\n")
+
+class RoutingPacket(Packet):
+    """A packet for communicating routing information between routers on
+       the network such that routing tables can be updated in a distributed
+       manner.
+
+    Attributes:
+        source: The host that sent the packet
+        timestamp: The time at which the host sent the packet
+        size: The packet size, in bytes
+    """
+    
+    def __init__(self, source, timestamp):
+        Packet.__init__(self, 64)
+        self.source = source
+        self.timestamp = timestamp
 
     def __str__(self):
         return ("RoutingPacket\n"
                 "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
+                "timestamp: " + str(self.timestamp) + "\n"
                 "size:        " + str(self.size) + " bytes\n")
