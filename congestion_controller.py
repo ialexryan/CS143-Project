@@ -1,5 +1,5 @@
 
-class CongestionControl:
+class CongestionController:
     """Implements Congestion Control
     
     Attributes:
@@ -11,7 +11,7 @@ class CongestionControl:
         self.ssthresh = 1200
         self.cwnd = 1
 
-class CongestionControlReno(CongestionControl):
+class CongestionControllerReno(CongestionController):
     """Implements TCP Reno
     
     Attributes:
@@ -19,7 +19,7 @@ class CongestionControlReno(CongestionControl):
     """
              
     def __init__(self):
-        CongestionControl.__init__(self)
+        CongestionController.__init__(self)
         self.duplicate_count = 0
     
     def __str__(self):
@@ -27,7 +27,7 @@ class CongestionControlReno(CongestionControl):
                 "cwnd:        " + str(self.cwnd) + "\n"
                 "duplicate ACKS" + str(self.duplicate_count) + "\n")
                 
-class CongestionControlFast(CongestionControl):
+class CongestionControllerFast(CongestionController):
     """Implements TCP Fast
     
     Attributes:
@@ -35,7 +35,7 @@ class CongestionControlFast(CongestionControl):
     """
              
     def __init__(self):
-        CongestionControl.__init__(self)
+        CongestionController.__init__(self)
         self.alpha = 10.0
     
     def __str__(self):
