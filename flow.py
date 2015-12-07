@@ -1,5 +1,5 @@
 from packet import PayloadPacket, AcknowledgementPacket
-from congestion_control import CongestionControlReno
+from congestion_controller import CongestionController
 
 class Flow:
     """A flow to be simulated on the network
@@ -12,10 +12,10 @@ class Flow:
         start_time: The time at which the flow simulation begins, in s
         event_scheduler: A reference to the global event scheduler
         complete: This flow has successfully transmitted all its data
-        reno: Instance of TCP Reno.
+        controller: Instance of Congestion Controller.
     """
 
-    def __init__(self, identifier, source, destination, amount, start_time):
+    def __init__(self, identifier, source, destination, amount, start_time, controller):
         self.identifier = identifier
         self.source = source
         self.destination = destination
@@ -24,7 +24,8 @@ class Flow:
         self.event_scheduler = None
         self.logger = None
         self.complete = False
-        self.reno = CongestionControlReno()
+        assert isinstance(controller, CongestionController)
+        self.controller = controller
 
     def __str__(self):
         return ("Flow ID      " + self.identifier + "\n"

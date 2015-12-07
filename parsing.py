@@ -4,6 +4,7 @@ from flow import Flow
 from host import Host
 from router import Router
 from simulation import Simulation
+from congestion_controller import CongestionControllerReno, CongestionControllerFast
 
 BYTES_PER_KILOBYTE = 1024
 BYTES_PER_MEGABYTE = 1048576
@@ -48,7 +49,8 @@ def generate_simulation_from_testcase(input_dict):
         destination_id = f["destination"]
         source = hosts.get(source_id)
         destination = hosts.get(destination_id)
-        flow = Flow(f["id"], source, destination, f["amount"] * BYTES_PER_MEGABYTE, f["start"])
+        controller = CongestionControllerReno()
+        flow = Flow(f["id"], source, destination, f["amount"] * BYTES_PER_MEGABYTE, f["start"], controller)
         flows[f["id"]] = flow
         source.flow = flow
 
