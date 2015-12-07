@@ -50,8 +50,8 @@ class Flow:
         assert isinstance(packet, AcknowledgementPacket)
         assert packet.source == self.destination
         assert packet.destination == self.source
-        self.logger.log_flow_received_acknowledgement(self.identifier, packet)
         self.amount -= 1024 # TODO: Don't hardcode.
+        self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
         self.send_a_packet()
 
     def completed(self):

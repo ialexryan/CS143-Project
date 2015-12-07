@@ -47,13 +47,14 @@ class Logger:
             "packet" : packet
         })
 
-    def log_flow_received_acknowledgement(self, flow_id, packet):
+    def log_flow_received_acknowledgement(self, flow_id, packet, amount_left):
         if self.verbose:
-            print str(self.clock) + ": Flow " + str(flow_id) + " received acknowledgement packet " + str(packet)
+            print str(self.clock) + ": Flow " + str(flow_id) + " now has " +str(amount_left) + " bytes left to receive after receiving acknowledgement packet " + str(packet)
         self.flow_received_acknowledgement_logs.append({
              "time" : self.clock.current_time,
              "flow_id" : flow_id,
-             "packet" : packet
+             "packet" : packet,
+             "amount_left" : amount_left
         })
 
     def log_router_sending_packet(self, router_id, packet, link_id):

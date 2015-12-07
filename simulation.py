@@ -3,8 +3,8 @@ from event import Event, FlowWakeEvent, RoutingUpdateEvent
 from logger import Logger
 from clock import Clock
 
-# Remove once TCP algorithm works
-TEMP_LARGE_VALUE = 10000
+# Ensures dynamic routing updates happen before flows begin
+TEMP_FLOW_DELAY = 100000 # Remove when congestion control is implemented
 
 class Simulation:
     """An instance of this class contains the data necessary
@@ -39,7 +39,7 @@ class Simulation:
         
         # Set up initial events
         for flow in flows.values():
-            event_scheduler.delay_event(flow.start_time + TEMP_LARGE_VALUE, FlowWakeEvent(flow))
+            event_scheduler.delay_event(flow.start_time + TEMP_FLOW_DELAY, FlowWakeEvent(flow))
         for host in hosts.values():
             event_scheduler.delay_event(0, RoutingUpdateEvent(host))
         
