@@ -1,5 +1,6 @@
 from packet import PayloadPacket, AcknowledgementPacket
 from congestion_controller import CongestionController
+from packet_tracker import PacketTracker
 
 class Flow:
     """A flow to be simulated on the network
@@ -25,6 +26,7 @@ class Flow:
         self.event_scheduler = None
         self.logger = None
         self.complete = False
+        self.ack_tracker = PacketTracker()
         assert isinstance(controller, CongestionController)
         self.controller = controller
 
@@ -58,7 +60,8 @@ class Flow:
         assert isinstance(packet, AcknowledgementPacket)
         assert packet.source == self.destination
         assert packet.destination == self.source
-        self.amount -= packet.payload_size
+        self.ack_tracker.account_for_packet(packet.identifier)
+        self.amount = self.total - self.ack_tracker.total_count_received() * packet.payload_size
         self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
         #self.send_a_packet()
         self.controller.acknowledgement_received(packet)
