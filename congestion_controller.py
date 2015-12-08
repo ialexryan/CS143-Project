@@ -16,6 +16,7 @@ class CongestionController:
         self.cwnd = 1.0
         self.not_acknowledged = dict()
         self.flow = None
+        self.clock = None
     
     def acknowledgement_received(self, packet):
         sys.exit("Abstract method acknowledgement_received not implemented")
@@ -33,7 +34,7 @@ class CongestionControllerReno(CongestionController):
     def __init__(self):
         CongestionController.__init__(self)
         self.duplicate_count = 0
-        self.next_packet = None
+        self.next_packet_num = 0
         self.state = slow_start
     
     def acknowledgement_received(self, packet):

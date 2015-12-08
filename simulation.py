@@ -27,6 +27,8 @@ class Simulation:
         self.clock = Clock()
         for object in hosts.values():
             object.clock = self.clock
+        for object in flows.values():
+            object.controller.clock = self.clock
         
         # Set up event schedulers
         self.event_queue = EventQueue(self.clock)
