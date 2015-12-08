@@ -3,8 +3,6 @@ from event import FlowWakeEvent
 
 slow_start = "Slow Start"
 congestion_avoidance = "Congestion Avoidance"
-fast_recovery = "Fast Recovery"
-
 
 class CongestionController:
     """Implements Congestion Control
@@ -53,7 +51,7 @@ class CongestionControllerReno(CongestionController):
             
         if self.state == slow_start:
             self.cwnd += 1
-            if self.cwnd > self.ssthresh:
+            if self.cwnd >= self.ssthresh:
                 self.state = congestion_avoidance
         elif self.state == congestion_avoidance:
             if self.next_packet_num == self.last_ack_received:
@@ -62,25 +60,29 @@ class CongestionControllerReno(CongestionController):
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
                     self.send_packet()
-                    self.state = fast_recovery
 
             else:
-                self.cwnd += 1 / self.cwnd
-        else:
-            self.state = congestion_avoidance
-            self.cwnd = self.ssthresh
+                if(self.duplicate_count == 3):
+                    self.cwnd = self.ssthresh
+                    self.state = congestion_avoidance
+                    self.duplicate_count = 0
+                    self.last_ack_received = self.next_packet_num
+                else:
+                    self.cwnd += 1 / self.cwnd
         
         self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
             
     def send_packet(self):
-        pass
+        packet_id = self.next_packet_num
+        self.not_acknowledged[packet_id] = self.clock.current_time
+        self.flow.send_a_packet(packet_id)
     
     def wake(self):
         if self.state == fast_recovery:
             self.state = slow_start
         else:
             self.cwnd /= 2
-            send_packet() #TODO determine which packet to send         
+            self.send_packet() #TODO determine which packet to send         
 
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
