@@ -24,7 +24,7 @@ class CongestionController:
         self.flow = None
         self.wake_event = None
         
-        self.event_queue = None
+        self.event_scheduler = None
         self.clock = None
 
     def acknowledgement_received(self, packet):
@@ -49,8 +49,7 @@ class CongestionControllerReno(CongestionController):
 
     def acknowledgement_received(self, packet):
         if self.wake_event != None:
-            self.event_queue.cancel_event(self.wake_event)
-        
+            self.event_scheduler.cancel_event(self.wake_event)
         del self.not_acknowledged[packet.identifier]
             
         if self.state == slow_start:
@@ -75,7 +74,7 @@ class CongestionControllerReno(CongestionController):
                 else:
                     self.cwnd += 1 / self.cwnd
         
-        self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
+        self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
             
     def send_packet(self):
         packet_id = self.next_packet_num
@@ -87,7 +86,8 @@ class CongestionControllerReno(CongestionController):
             self.state = slow_start
         else:
             self.cwnd /= 2
-            self.send_packet() #TODO determine which packet to send         
+            self.send_packet() #TODO determine which packet to send 
+        self.wake_event = None        
 
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
