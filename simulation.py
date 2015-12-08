@@ -26,6 +26,8 @@ class Simulation:
 
         # Set up clocks
         self.clock = Clock()
+        for item in flows.values():
+            item.controller.clock = self.clock
         for item in hosts.values():
             item.clock = self.clock
 
@@ -33,6 +35,8 @@ class Simulation:
         self.event_queue = EventQueue(self.clock)
         for flow in flows.values() + links.values() + hosts.values():
             flow.event_scheduler = self.event_queue
+        for flow in flows.values():
+            flow.controller.event_scheduler = self.event_queue
 
         # Set up initial events
         for flow in flows.values():
