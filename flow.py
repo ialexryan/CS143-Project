@@ -60,7 +60,8 @@ class Flow:
         assert packet.destination == self.source
         self.amount -= packet.payload_size
         self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
-        self.send_a_packet()
+        #self.send_a_packet()
+        self.controller.acknowledgement_received(packet)
 
     def completed(self):
         return self.amount is 0

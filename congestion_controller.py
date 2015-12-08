@@ -3,6 +3,7 @@ from event import FlowWakeEvent
 
 slow_start = "Slow Start"
 congestion_avoidance = "Congestion Avoidance"
+fast_recovery = "Fast Recovery"
 
 class CongestionController:
     """Implements Congestion Control
@@ -22,6 +23,9 @@ class CongestionController:
         self.last_ack_received = -1
         self.flow = None
         self.wake_event = None
+        
+        self.event_queue = None
+        self.clock = None
 
     def acknowledgement_received(self, packet):
         sys.exit("Abstract method acknowledgement_received not implemented")
@@ -53,13 +57,14 @@ class CongestionControllerReno(CongestionController):
             self.cwnd += 1
             if self.cwnd >= self.ssthresh:
                 self.state = congestion_avoidance
-        elif self.state == congestion_avoidance:
+        elif self.state == congestion_avoidance or self.state == fast_recovery:
             if self.next_packet_num == self.last_ack_received:
                 self.duplicate_count += 1
                 if self.duplicate_count >= 3:
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
                     self.send_packet()
+                    self.state = fast_recovery
 
             else:
                 if(self.duplicate_count == 3):

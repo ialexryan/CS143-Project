@@ -25,6 +25,8 @@ class Simulation:
 
         # Set up clocks
         self.clock = Clock()
+        for item in flows.values():
+            item.controller.clock = self.clock
         for item in hosts.values():
             item.clock = self.clock
 
