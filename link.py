@@ -15,18 +15,25 @@ class Buffer:
         self.available_space = size
         self.link = link
         self.queue = Queue.Queue()
+        self.logger = None
+
+    def set_logger(self, logger):
+        self.logger = logger
+        self.logger.log_link_buffer_available_space(self.link.identifier, self.available_space)
 
     def put(self, packet, destination):
         if self.available_space >= packet.size:
             self.queue.put((packet, destination))
             self.available_space -= packet.size
+            self.logger.log_link_buffer_available_space(self.link.identifier, self.available_space)
         # Otherwise, drop the packet
         else:
-            self.link.logger.log_link_dropped_packet_buffer_full(self.link.identifier, packet)
+            self.logger.log_link_dropped_packet_buffer_full(self.link.identifier, packet)
 
     def get(self):
         (packet, destination) = self.queue.get_nowait()
         self.available_space += packet.size
+        self.logger.log_link_buffer_available_space(self.link.identifier, self.available_space)
         return (packet, destination)
 
 class Link:
@@ -52,6 +59,7 @@ class Link:
         self.deviceB = deviceB
         self.busy = False
         self.event_scheduler = None
+        self.logger = None
 
     def __str__(self):
         return ("Link ID   " + self.identifier + "\n"
@@ -60,6 +68,10 @@ class Link:
                 "buffer:   " + str(self.buffer.available_space) + " bytes\n"
                 "device A: " + self.deviceA.identifier + "\n"
                 "device B: " + self.deviceB.identifier) + "\n"
+
+    def set_logger(self, logger):
+        self.logger = logger
+        self.buffer.set_logger(logger)
 
     def other_device(self, device):
         if device == self.deviceA:
@@ -79,6 +91,7 @@ class Link:
         # Place in buffer if busy, otherwise send now
         if not self.busy:
             self._send_packet_now(packet, recipient)
+            self.logger.log_link_sent_packet_immediately(self.identifier, packet)
         else:
             self.buffer.put(packet, recipient)
 
@@ -98,5 +111,6 @@ class Link:
             # If there are any packets in the buffer, send one
             (packet, destination) = self.buffer.get()
             self._send_packet_now(packet, destination)
+            self.logger.log_link_sent_packet_from_buffer(self.identifier, packet)
         except Queue.Empty:
             pass

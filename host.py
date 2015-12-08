@@ -1,3 +1,4 @@
+import sys
 from device import Device
 from packet import StandardPacket, PayloadPacket, AcknowledgementPacket, RoutingPacket
 from event import RoutingUpdateEvent
@@ -20,16 +21,20 @@ class Host(Device):
         self.flow = None
         self.clock = None
         self.event_scheduler = None
+        self.logger = None
         self.ongoing_flows = {}
 
     def __str__(self):
-        return ("Host ID  " + self.identifier)
+        return "Host ID  " + self.identifier
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     def send_packet(self, packet):
         assert packet.source == self
         # Send packet across link
         self.link.send_packet(packet, self)
-    
+
     def payload_received(self, packet):
         assert isinstance(packet, PayloadPacket)
         if packet.flow_id not in self.ongoing_flows:
@@ -37,7 +42,7 @@ class Host(Device):
         ack_tracker = self.ongoing_flows[packet.flow_id]
         ack_id = ack_tracker.account_for_packet(packet.identifier)
         return packet.acknowledgement(ack_id)
-        
+
 
     # Called by flow to send payload and called by links
     # in response to events in the event queue
@@ -62,7 +67,7 @@ class Host(Device):
 
     # Called during parsing to set up object graph
     def attach_link(self, link):
-        if self.link == None:
+        if self.link is None:
             self.link = link
         else:
             sys.exit("Illegal to attach multiple links to a host")
