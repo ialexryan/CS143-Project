@@ -53,21 +53,24 @@ class Link:
         return ("Link ID   " + self.identifier + "\n"
                 "rate:     " + str(self.rate) + " mbps\n"
                 "delay:    " + str(self.delay) + " ms\n"
-                "buffer:   " + str(self.buffer.size) + " bytes\n"
+                "buffer:   " + str(self.buffer.available_space) + " bytes\n"
                 "device A: " + self.deviceA.identifier + "\n"
                 "device B: " + self.deviceB.identifier) + "\n"
+    
+    def other_device(self, device):
+        if device == self.deviceA:
+            return self.deviceB
+        elif device == self.deviceB:
+            return self.deviceA
+        else:
+            sys.exit("Device {0} not attached to link {1}".format(device.identifier, self.identifier))
 
     # Sends a packet instantly if the link is not busy
     # or enqueues the packet in the buffer if the link is busy
     def send_packet(self, packet, sender):
 
         # The recipient is whatever device is not the sender
-        if sender == self.deviceA:
-            recipient = self.deviceB
-        elif sender == self.deviceB:
-            recipient = self.deviceA
-        else:
-            sys.exit("Sender argument of request_send_packet must be a device attached to the link")
+        recipient = self.other_device(sender)
 
         # Place in buffer if busy, otherwise send now
         if not self.busy:
@@ -81,7 +84,7 @@ class Link:
         self.busy = True
 
         sending_delay = packet.size / self.rate
-        self.event_scheduler.delay_event(sending_delay + self.delay, PacketArrivalEvent(packet, recipient))
+        self.event_scheduler.delay_event(sending_delay + self.delay, PacketArrivalEvent(packet, recipient, self))
         self.event_scheduler.delay_event(sending_delay, LinkReadyEvent(self))
 
     # Called by LinkReadyEvent when the link is no longer busy
