@@ -9,7 +9,7 @@ class Flow:
         source: The source host
         destination: The destination host
         amount: The amount of data to be transmitted, in bytes
-        start_time: The time at which the flow simulation begins, in s
+        start_time: The time at which the flow simulation begins, in milliseconds
         event_scheduler: A reference to the global event scheduler
         complete: This flow has successfully transmitted all its data
         controller: Instance of Congestion Controller.
@@ -20,9 +20,9 @@ class Flow:
         self.source = source
         self.destination = destination
         self.amount = amount
-        self.start_time = start_time
+        self.total = amount
+        self.start_time = start_time * 1000;
         self.event_scheduler = None
-        self.logger = None
         self.complete = False
         assert isinstance(controller, CongestionController)
         self.controller = controller
@@ -32,7 +32,7 @@ class Flow:
                 "source:      " + self.source.identifier + "\n"
                 "destination: " + self.destination.identifier + "\n"
                 "amount:      " + str(self.amount) + " bytes\n"
-                "start_time:   " + str(self.start_time) + " s\n")
+                "start_time:   " + str(self.start_time) + " ms\n")
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets
     def wake(self):
@@ -40,12 +40,12 @@ class Flow:
 
     def send_a_packet(self):
         if (self.amount > 0):
-            # numbers the packets in descending order
+            # numbers the packets in ascending order
             # packet is uniquely identified by flow and packet number
-            packetID = "P" + str(self.amount / 1024) + self.identifier
-            packet = PayloadPacket(packetID, self.source, self.destination)
+            packetID = (self.total - self.amount) / 1024
+            packet = PayloadPacket(packetID, self.identifier, self.source, self.destination, 1024, 64)
             self.logger.log_flow_send_packet(self.identifier, packet)
-            self.source.handle_packet(packet)
+            self.source.send_packet(packet)
         else:
             self.complete = True
 
@@ -54,6 +54,9 @@ class Flow:
         assert isinstance(packet, AcknowledgementPacket)
         assert packet.source == self.destination
         assert packet.destination == self.source
-        self.logger.log_flow_received_acknowledgement(self.identifier, packet)
-        self.amount -= 1024
+        self.amount -= packet.payload_size
+        self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
         self.send_a_packet()
+
+    def completed(self):
+        return self.amount is 0
