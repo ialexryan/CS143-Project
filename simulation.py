@@ -3,9 +3,6 @@ from event import Event, FlowWakeEvent, RoutingUpdateEvent
 from logger import Logger
 from clock import Clock
 
-# Ensures dynamic routing updates happen before flows begin
-TEMP_FLOW_DELAY = 100000 # Remove when congestion control is implemented
-
 class Simulation:
     """An instance of this class contains the data necessary
        for an entire simulation.
@@ -28,7 +25,7 @@ class Simulation:
         self.routers = routers
 
         event_scheduler = EventScheduler(self)
-        
+
         # Set up event schedulers
         for flow in flows.values():
             flow.event_scheduler = event_scheduler
@@ -36,13 +33,13 @@ class Simulation:
             link.event_scheduler = event_scheduler
         for host in hosts.values():
             host.event_scheduler = event_scheduler
-        
+
         # Set up initial events
         for flow in flows.values():
-            event_scheduler.delay_event(flow.start_time + TEMP_FLOW_DELAY, FlowWakeEvent(flow))
+            event_scheduler.delay_event(flow.start_time, FlowWakeEvent(flow))
         for host in hosts.values():
             event_scheduler.delay_event(0, RoutingUpdateEvent(host))
-        
+
         # Set up logging
         self.logger = Logger(self.clock, verbose)
 
@@ -77,12 +74,12 @@ class Simulation:
             if not flow.completed():
                 return False
         return True
-        
+
     def run(self):
         while not self.all_flows_finished():
             if not self.step():
                 sys.exit("TCP deadlock: event queue empty but flows not complete")
-    
+
         print "All flows finished transmitting!"
         print "Elapsed time in simulation world: " + str(self.clock)
         exit()

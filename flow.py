@@ -9,7 +9,7 @@ class Flow:
         source: The source host
         destination: The destination host
         amount: The amount of data to be transmitted, in bytes
-        start_time: The time at which the flow simulation begins, in s
+        start_time: The time at which the flow simulation begins, in milliseconds
         event_scheduler: A reference to the global event scheduler
         complete: This flow has successfully transmitted all its data
         reno: Instance of TCP Reno.
@@ -20,7 +20,7 @@ class Flow:
         self.source = source
         self.destination = destination
         self.amount = amount
-        self.start_time = start_time
+        self.start_time = start_time * 1000;
         self.event_scheduler = None
         self.logger = None
         self.complete = False
@@ -31,7 +31,7 @@ class Flow:
                 "source:      " + self.source.identifier + "\n"
                 "destination: " + self.destination.identifier + "\n"
                 "amount:      " + str(self.amount) + " bytes\n"
-                "start_time:   " + str(self.start_time) + " s\n")
+                "start_time:   " + str(self.start_time) + " ms\n")
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets
     def wake(self):

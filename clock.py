@@ -8,6 +8,6 @@ class Clock:
 
     def __init__(self, time=0):
         self.current_time = time
-    
+
     def __str__(self):
-        return str(self.current_time / 1000)
+        return str(self.current_time / 1000) + "s"
