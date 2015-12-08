@@ -20,7 +20,6 @@ class CongestionController:
         self.not_acknowledged = dict()
         self.timed_out = []
         self.duplicate_count = 0
-        self.next_packet_num = 0
         self.last_ack_received = -1
         self.window_start = 0
         self.retransmit = False
@@ -71,7 +70,7 @@ class CongestionControllerReno(CongestionController):
             if self.cwnd >= self.ssthresh:
                 self.state = congestion_avoidance
         elif self.state == congestion_avoidance or self.state == fast_recovery:
-            if self.next_packet_num == self.last_ack_received:
+            if packet.next_id == self.last_ack_received:
                 self.duplicate_count += 1
                 if self.duplicate_count >= 3:
                     self.cwnd /= 2
@@ -83,9 +82,9 @@ class CongestionControllerReno(CongestionController):
                     self.cwnd = self.ssthresh
                     self.state = congestion_avoidance
                     self.duplicate_count = 0
-                    self.last_ack_received = self.next_packet_num
                 else:
                     self.cwnd += 1 / self.cwnd
+                self.last_ack_received = packet.next_id
                     
         self.send_packet()        
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
