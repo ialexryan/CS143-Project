@@ -63,7 +63,7 @@ class Link:
 
     def __str__(self):
         return ("Link ID   " + self.identifier + "\n"
-                "rate:     " + str(self.rate) + " mbps\n"
+                "rate:     " + str(self.rate) + " bytes/s\n"
                 "delay:    " + str(self.delay) + " ms\n"
                 "buffer:   " + str(self.buffer.available_space) + " bytes\n"
                 "device A: " + self.deviceA.identifier + "\n"
