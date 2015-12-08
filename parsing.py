@@ -54,4 +54,4 @@ def generate_simulation_from_testcase(input_dict, verbose, fast_insteadof_reno):
         flows[f["id"]] = flow
         source.flows[f["id"]] = flow
 
-    return Simulation(links, flows, hosts, routers, verbose) # verbose
+    return Simulation(links, flows, hosts, routers, verbose, fast_insteadof_reno) # verbose
