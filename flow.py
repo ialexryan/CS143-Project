@@ -22,10 +22,9 @@ class Flow:
         self.destination = destination
         self.amount = amount
         self.total = amount
-        self.start_time = start_time * 1000;
+        self.start_time = start_time;
         self.event_scheduler = None
         self.logger = None
-        self.complete = False
         self.ack_tracker = PacketTracker()
         assert isinstance(controller, CongestionController)
         self.controller = controller
@@ -52,7 +51,6 @@ class Flow:
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.send_packet(packet)
         else:
-            self.complete = True
             self.logger.log_flow_completed(self.identifier)
 
     # Called by a link's host whenever an acknowledgement is received
@@ -67,4 +65,4 @@ class Flow:
         self.controller.acknowledgement_received(packet)
 
     def completed(self):
-        return self.amount is 0
+        return self.amount == 0
