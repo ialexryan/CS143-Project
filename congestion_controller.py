@@ -15,6 +15,9 @@ class CongestionController:
         self.ssthresh = 1200
         self.cwnd = 1.0
         self.not_acknowledged = dict()
+        self.duplicate_count = 0
+        self.next_packet_num = 0
+        self.last_ack_received = -1
         self.flow = None
         self.clock = None
     
@@ -33,8 +36,6 @@ class CongestionControllerReno(CongestionController):
              
     def __init__(self):
         CongestionController.__init__(self)
-        self.duplicate_count = 0
-        self.next_packet_num = 0
         self.state = slow_start
     
     def acknowledgement_received(self, packet):
@@ -72,9 +73,22 @@ class CongestionControllerFast(CongestionController):
     def __init__(self):
         CongestionController.__init__(self)
         self.alpha = 10.0
+        self.base_RTT = -1
     
     def acknowledgement_received(self, packet):
-        pass
+        del self.not_acknowledged[packet.identifier]
+        
+        if self.last_ack_received == packet.next_id:
+            self.duplicate_count += 1
+            if duplicate_count >= 3:
+                send_packet() #TODO mark what packet to send
+        rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
+        if self.base_RTT == -1:
+            self.base_RTT = rtt
+        self.cwnd = self.cwnd * self.base_RTT / rtt
+        
+        if rtt < self.base_RTT:
+            self.base_RTT = rtt
     
     def send_packet():
         pass    
