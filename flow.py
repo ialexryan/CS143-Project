@@ -20,6 +20,7 @@ class Flow:
         self.source = source
         self.destination = destination
         self.amount = amount
+        self.total = amount
         self.start_time = start_time * 1000;
         self.event_scheduler = None
         self.logger = None
@@ -40,10 +41,10 @@ class Flow:
 
     def send_a_packet(self):
         if (self.amount > 0):
-            # numbers the packets in descending order
+            # numbers the packets in ascending order
             # packet is uniquely identified by flow and packet number
-            packetID = "P" + str(self.amount / 1024) + self.identifier
-            packet = PayloadPacket(packetID, self.source, self.destination, 1024, 64)
+            packetID = (self.total - self.amount) / 1024
+            packet = PayloadPacket(packetID, self.identifier, self.source, self.destination, 1024, 64)
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.send_packet(packet)
         else:
