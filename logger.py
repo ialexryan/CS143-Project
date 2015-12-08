@@ -117,6 +117,7 @@ class Logger:
         })
 
     def log_link_sent_packet_immediately(self, link_id, packet):
+#        print str(self.clock) + ": Link " + link_id + " sent packet immediately " + str(packet)
         self.link_sent_packet_immediately_logs.append({
             "time": self.clock.current_time,
             "link_id": link_id,
@@ -124,6 +125,7 @@ class Logger:
         })
 
     def log_link_sent_packet_from_buffer(self, link_id, packet):
+#        print str(self.clock) + ": Link " + link_id + " sent packet from buffer " + str(packet)
         self.link_sent_packet_from_buffer_logs.append({
             "time": self.clock.current_time,
             "link_id": link_id,
