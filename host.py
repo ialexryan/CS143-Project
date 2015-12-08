@@ -3,7 +3,7 @@ from packet import PayloadPacket, AcknowledgementPacket, RoutingPacket
 from event import RoutingUpdateEvent
 import sys
 
-ROUTING_UPDATE_PERIOD = 100000
+ROUTING_UPDATE_PERIOD = 100000  #Every 100 seconds?? That's a long time...
 
 class Host(Device):
     """A host
