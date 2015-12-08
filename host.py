@@ -1,7 +1,7 @@
 from device import Device
 from packet import PayloadPacket, AcknowledgementPacket, RoutingPacket
 from event import RoutingUpdateEvent
-from packet_tracker import PacketTracker
+from acknowledgement_tracker import AcknowledgementTracker
 import sys
 
 ROUTING_UPDATE_PERIOD = 100000
@@ -32,9 +32,11 @@ class Host(Device):
     
     def payload_received(self, packet):
         assert isinstance(packet, PayloadPacket)
-        if self.flow.identifier not in self.ongoing_flows:
-            self.ongoing_flows[packet.flowId] = PacketTracker()
-            
+        if packet.flow_id not in self.ongoing_flows:
+            self.ongoing_flows[packet.flow_id] = AcknowledgementTracker()
+        ack_tracker = self.ongoing_flows[packet.flow_id]
+        ack_id = ack_tracker.account_for_packet(packet.identifier)
+        return packet.acknowledgement(ack_id)
         
 
     def receive_packet(self, packet):
@@ -45,7 +47,8 @@ class Host(Device):
         #   by sending an acknowledgement packet across
         #   the same link
         if isinstance(packet, PayloadPacket):
-            self.link.send_packet(packet.acknowledgement(), self)
+            ack_packet = self.payload_received(packet)
+            self.link.send_packet(ack_packet, self)
         elif isinstance(packet, AcknowledgementPacket):
             self.flow.acknowledgement_received(packet)
         else:
