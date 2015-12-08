@@ -11,7 +11,7 @@ class RoutingTable():
 
     def __init__(self):
         self.table = {}
-    
+
     def get_entry(self, host_identifier):
         if host_identifier in self.table:
             return self.table[host_identifier][1]
@@ -39,7 +39,7 @@ class Router(Device):
 
     Attributes:
         identifier: The unique identification of the router
-        routing_table: The instance of RoutingThable
+        routing_table: The instance of RoutingTable
     """
 
     def __init__(self, identifier):
@@ -59,7 +59,7 @@ class Router(Device):
             for link in self.links:
                 if link is not from_link:
                     link.send_packet(packet, self)
-    
+
     def _handle_standard_packet(self, packet):
         assert isinstance(packet, StandardPacket)
         # Use static routing

@@ -1,85 +1,73 @@
-class Packet:
-    """A generic network packet.
-       Superclass of StandardPacket and RoutingPacket.
-
-    Attributes:
-        source: The host that sent the packet
-        destination: The host to which the packet was sent
-        packet_type: The packet type
-        size: The packet size, in bytes
-    """
-
-    def __init__(self, size):
-        self.size = size
-
-    def __str__(self):
-        return ("Packet\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
-
-class StandardPacket(Packet):
+class StandardPacket():
     """A packet for sending information between hosts on the network.
        Superclass of PayloadPacket and AcknowledgementPacket.
 
     Attributes:
+        identifier: the packet ID that a pair of Payload and ACK packets share
+        flowID: The flow that sent the packet
         source: The host that sent the packet
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
-    
-    def __init__(self, source, destination, size):
-        Packet.__init__(self, size)
+
+    def __init__(self, identifier, flowID, source, destination, size):
+        self.size = size
+        self.identifier = identifier
+        self.flowID = flowID
         self.source = source
         self.destination = destination
 
-    def __str__(self):
-        return ("StandardPacket\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
 
 class PayloadPacket(StandardPacket):
     """A packet for sending information to another host on the network.
 
     Attributes:
+        identifier: The packet number sent by a flow
+        flowID: The flow that sent the packet
         source: The host that sent the packet
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
-    
-    def __init__(self, source, destination):
-        StandardPacket.__init__(self, source, destination, 1024)
+
+    def __init__(self, identifier, flowID, source, destination, payload_size, ack_size):
+        StandardPacket.__init__(self, identifier, flowID, source, destination, payload_size)
+        self.ack_size = ack_size
 
     def acknowledgement(self):
-        return AcknowledgementPacket(self.destination, self.source)
+        return AcknowledgementPacket(self.identifier, self.flowID, self.destination, self.source, self.size, self.ack_size)
 
     def __str__(self):
-        return ("PayloadPacket\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
+        return ("PayloadPacket #" + str(self.identifier) + "\n"
+                "flowID:        " + self.flowID + "\n"
+                "source:        " + self.source.identifier + "\n"
+                "destination:   " + self.destination.identifier + "\n"
+                "size:          " + str(self.size) + " bytes\n")
+
 
 class AcknowledgementPacket(StandardPacket):
     """A packet for acknowledging receipt of a PayloadPacket
        from another host on the network.
 
     Attributes:
+        identifier: The packet number sent by a flow
+        flowID: The flow that sent the packet
         source: The host that sent the packet
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
-    
-    def __init__(self, source, destination):
-        StandardPacket.__init__(self, source, destination, 64)
+
+    def __init__(self, identifier, flowID, source, destination, payload_size, ack_size):
+        StandardPacket.__init__(self, identifier, flowID, source, destination, ack_size)
+        self.payload_size = payload_size
 
     def __str__(self):
-        return ("AcknowledgementPacket\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
+        return ("AcknowledgementPacket #" + str(self.identifier) + "\n"
+                "flowID:                " + self.flowID + "\n"
+                "source:                " + self.source.identifier + "\n"
+                "destination:           " + self.destination.identifier + "\n"
+                "size:                  " + str(self.size) + " bytes\n")
 
-class RoutingPacket(Packet):
+class RoutingPacket:
     """A packet for communicating routing information between routers on
        the network such that routing tables can be updated in a distributed
        manner.
@@ -89,9 +77,9 @@ class RoutingPacket(Packet):
         timestamp: The time at which the host sent the packet
         size: The packet size, in bytes
     """
-    
-    def __init__(self, source, timestamp):
-        Packet.__init__(self, 64)
+
+    def __init__(self, source, timestamp, size):
+        self.size = size
         self.source = source
         self.timestamp = timestamp
 
