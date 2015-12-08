@@ -46,9 +46,13 @@ class Router(Device):
         Device.__init__(self, identifier)
         self.routing_table = RoutingTable()
         self.links = []
+        self.logger = None
 
     def __str__(self):
         return ("Router ID  " + self.identifier + "\n")
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     def _handle_routing_packet(self, packet, from_link):
         assert isinstance(packet, RoutingPacket)
