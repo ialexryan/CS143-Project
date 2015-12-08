@@ -43,7 +43,7 @@ class Flow:
             # numbers the packets in descending order
             # packet is uniquely identified by flow and packet number
             packetID = "P" + str(self.amount / 1024) + self.identifier
-            packet = PayloadPacket(packetID, self.source, self.destination)
+            packet = PayloadPacket(packetID, self.source, self.destination, 1024, 64)
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.send_packet(packet)
         else:
@@ -54,7 +54,7 @@ class Flow:
         assert isinstance(packet, AcknowledgementPacket)
         assert packet.source == self.destination
         assert packet.destination == self.source
-        self.amount -= 1024 # TODO: Don't hardcode.
+        self.amount -= packet.payload_size
         self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
         self.send_a_packet()
 

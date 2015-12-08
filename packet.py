@@ -1,24 +1,4 @@
-class Packet:
-    """A generic network packet.
-       Superclass of StandardPacket and RoutingPacket.
-
-    Attributes:
-        source: The host that sent the packet
-        destination: The host to which the packet was sent
-        packet_type: The packet type
-        size: The packet size, in bytes
-    """
-
-    def __init__(self, size):
-        self.size = size
-
-    def __str__(self):
-        return ("Packet\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
-
-class StandardPacket(Packet):
+class StandardPacket():
     """A packet for sending information between hosts on the network.
        Superclass of PayloadPacket and AcknowledgementPacket.
 
@@ -28,18 +8,13 @@ class StandardPacket(Packet):
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
-    
+
     def __init__(self, identifier, source, destination, size):
-        Packet.__init__(self, size)
+        self.size = size
         self.identifier = identifier
         self.source = source
         self.destination = destination
 
-    def __str__(self):
-        return ("StandardPacket ID " + self.identifier + "\n"
-                "source:           " + self.source.identifier + "\n"
-                "destination:      " + self.destination.identifier + "\n"
-                "size:             " + str(self.size) + " bytes\n")
 
 class PayloadPacket(StandardPacket):
     """A packet for sending information to another host on the network.
@@ -49,18 +24,20 @@ class PayloadPacket(StandardPacket):
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
-    
-    def __init__(self, identifier, source, destination):
-        StandardPacket.__init__(self, identifier, source, destination, 1024)
+
+    def __init__(self, identifier, source, destination, payload_size, ack_size):
+        StandardPacket.__init__(self, identifier, source, destination, payload_size)
+        self.ack_size = ack_size
 
     def acknowledgement(self):
-        return AcknowledgementPacket(self.identifier, self.destination, self.source)
+        return AcknowledgementPacket(self.identifier, self.destination, self.source, self.size, self.ack_size)
 
     def __str__(self):
         return ("PayloadPacket ID " + self.identifier + "\n"
                 "source:          " + self.source.identifier + "\n"
                 "destination:     " + self.destination.identifier + "\n"
                 "size:            " + str(self.size) + " bytes\n")
+
 
 class AcknowledgementPacket(StandardPacket):
     """A packet for acknowledging receipt of a PayloadPacket
@@ -71,9 +48,10 @@ class AcknowledgementPacket(StandardPacket):
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
-    
-    def __init__(self, identifier, source, destination):
-        StandardPacket.__init__(self, identifier, source, destination, 64)
+
+    def __init__(self, identifier, source, destination, payload_size, ack_size):
+        StandardPacket.__init__(self, identifier, source, destination, ack_size)
+        self.payload_size = payload_size
 
     def __str__(self):
         return ("AcknowledgementPacket ID " + self.identifier + "\n"
@@ -81,7 +59,7 @@ class AcknowledgementPacket(StandardPacket):
                 "destination:             " + self.destination.identifier + "\n"
                 "size:                    " + str(self.size) + " bytes\n")
 
-class RoutingPacket(Packet):
+class RoutingPacket:
     """A packet for communicating routing information between routers on
        the network such that routing tables can be updated in a distributed
        manner.
@@ -91,9 +69,9 @@ class RoutingPacket(Packet):
         timestamp: The time at which the host sent the packet
         size: The packet size, in bytes
     """
-    
-    def __init__(self, source, timestamp):
-        Packet.__init__(self, 64)
+
+    def __init__(self, source, timestamp, size):
+        self.size = size
         self.source = source
         self.timestamp = timestamp
 
