@@ -1,5 +1,5 @@
 from device import Device
-from packet import PayloadPacket, AcknowledgementPacket, RoutingPacket
+from packet import StandardPacket, PayloadPacket, AcknowledgementPacket, RoutingPacket
 from event import RoutingUpdateEvent
 import sys
 
@@ -28,8 +28,13 @@ class Host(Device):
         # Send packet across link
         self.link.send_packet(packet, self)
 
-    # Called by links in response to events in the event queue
+    # Called by flow to send payload and called by links
+    # in response to events in the event queue
     def handle_packet(self, packet, from_link):
+        if isinstance(packet, RoutingPacket):
+            return # Should only happen if two hosts are directly connected by a link
+
+        assert isinstance(packet, StandardPacket)
         assert packet.destination == self
         # - If this packet is an acknowledgment packet,
         #   notify flow so it can do the bookkeeping
@@ -41,7 +46,7 @@ class Host(Device):
         elif isinstance(packet, AcknowledgementPacket):
             self.flow.acknowledgement_received(packet)
         else:
-            sys.exit("Host doesn't know how to receive packet of type " + type(packet).__name__)
+            sys.exit("Host doesn't know how to handle packet of type " + type(packet).__name__)
 
     # Called during parsing to set up object graph
     def attach_link(self, link):

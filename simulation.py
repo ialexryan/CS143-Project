@@ -1,4 +1,4 @@
-import sys
+import sys, Queue
 from event import Event, FlowWakeEvent, RoutingUpdateEvent
 from logger import Logger
 from clock import Clock
