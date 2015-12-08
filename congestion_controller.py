@@ -23,7 +23,10 @@ class CongestionController:
     
     def send_packet():
         sys.exit("Abstract method send_packet not implemented")
-
+        
+    def wake(self):
+        pass
+        
 class CongestionControllerReno(CongestionController):
     """Implements TCP Reno
     
@@ -39,20 +42,22 @@ class CongestionControllerReno(CongestionController):
     
     def acknowledgement_received(self, packet):
         if self.state == slow_start:
-            cwnd += 1
-            if cwnd > ssthresh:
+            self.cwnd += 1
+            if self.cwnd > self.ssthresh:
                 self.state = congestion_avoidance
         elif self.state == congestion_avoidance:
-            if next_packet == packet.identifier:
-                cwnd += 1 / cwnd
+            if self.next_packet_num == packet.identifier:
+                self.cwnd += 1 / self.cwnd
             else:
-                duplicate_count += 1
-                if duplicate_count > 3:
+                self.duplicate_count += 1
+                if self.duplicate_count >= 3:
+                    self.cwnd /= 2
+                    self.ssthresh = self.cwnd
+                    self.send_packet()
                     self.state = fast_recovery
-                    send_packet()
         else:
             self.state = congestion_avoidance
-            self.cwnd = ssthresh
+            self.cwnd = self.ssthresh
     
     def send_packet():
         pass
