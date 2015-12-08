@@ -98,4 +98,6 @@ def show_graphs(logger):
     for f in graph_functions:
         f(logger, size, i)
         i += 1
+    fig = plt.gcf()
+    fig.canvas.set_window_title("TCP Fast" if logger.fast_insteadof_reno else "TCP Reno")
     plt.show()

@@ -20,9 +20,10 @@ class Logger:
         TO DO
     """
 
-    def __init__(self, clock, verbose):
+    def __init__(self, clock, verbose, fast_insteadof_reno):
         self.clock = clock
         self.verbose = verbose
+        self.fast_insteadof_reno = fast_insteadof_reno
         self.flow_started_logs = []
         self.flow_completed_logs = []
         self.flow_send_packet_logs = []
