@@ -95,9 +95,6 @@ class CongestionControllerFast(CongestionController):
         if rtt < self.base_RTT:
             self.base_RTT = rtt
 
-    def acknowledgement_received(self, packet):
-        pass
-
     def send_packet():
         pass
 
