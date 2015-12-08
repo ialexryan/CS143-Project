@@ -1,6 +1,7 @@
 from device import Device
 from packet import PayloadPacket, AcknowledgementPacket, RoutingPacket
 from event import RoutingUpdateEvent
+from packet_tracker import PacketTracker
 import sys
 
 ROUTING_UPDATE_PERIOD = 100000
@@ -19,6 +20,7 @@ class Host(Device):
         self.flow = None
         self.clock = None
         self.event_scheduler = None
+        self.ongoing_flows = {}
 
     def __str__(self):
         return ("Host ID  " + self.identifier)
@@ -27,6 +29,13 @@ class Host(Device):
         assert packet.source == self
         # Send packet across link
         self.link.send_packet(packet, self)
+    
+    def payload_received(self, packet):
+        assert isinstance(packet, PayloadPacket)
+        if self.flow.identifier not in self.ongoing_flows:
+            self.ongoing_flows[packet.flowId] = PacketTracker()
+            
+        
 
     def receive_packet(self, packet):
         assert packet.destination == self
