@@ -18,11 +18,11 @@ class Host(Device):
     def __init__(self, identifier):
         Device.__init__(self, identifier)
         self.link = None
-        self.flow = None
+        self.flows = {}
         self.clock = None
         self.event_scheduler = None
         self.logger = None
-        self.ongoing_flows = {}
+        self.payload_packet_trackers = {}
 
     def __str__(self):
         return "Host ID  " + self.identifier
@@ -37,9 +37,9 @@ class Host(Device):
 
     def payload_received(self, packet):
         assert isinstance(packet, PayloadPacket)
-        if packet.flow_id not in self.ongoing_flows:
-            self.ongoing_flows[packet.flow_id] = PacketTracker()
-        ack_tracker = self.ongoing_flows[packet.flow_id]
+        if packet.flow_id not in self.payload_packet_trackers:
+            self.payload_packet_trackers[packet.flow_id] = PacketTracker()
+        ack_tracker = self.payload_packet_trackers[packet.flow_id]
         ack_tracker.account_for_packet(packet.identifier)
         return packet.acknowledgement(ack_tracker.next_packet)
 
@@ -61,7 +61,7 @@ class Host(Device):
             ack_packet = self.payload_received(packet)
             self.link.send_packet(ack_packet, self)
         elif isinstance(packet, AcknowledgementPacket):
-            self.flow.acknowledgement_received(packet)
+            self.flows[packet.flow_id].acknowledgement_received(packet)
         else:
             sys.exit("Host doesn't know how to handle packet of type " + type(packet).__name__)
 

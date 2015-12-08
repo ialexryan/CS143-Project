@@ -52,6 +52,6 @@ def generate_simulation_from_testcase(input_dict):
         flow = Flow(f["id"], source, destination, f["amount"] * BYTES_PER_MEGABYTE, f["start"], controller)
         controller.flow = flow
         flows[f["id"]] = flow
-        source.flow = flow
+        source.flows[f["id"]] = flow
 
     return Simulation(links, flows, hosts, routers, True) # verbose
