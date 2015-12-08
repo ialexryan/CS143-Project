@@ -1,3 +1,4 @@
+import sys
 from device import Device
 from packet import StandardPacket, RoutingPacket
 
@@ -49,7 +50,7 @@ class Router(Device):
         self.logger = None
 
     def __str__(self):
-        return ("Router ID  " + self.identifier + "\n")
+        return "Router ID  " + self.identifier + "\n"
 
     def set_logger(self, logger):
         self.logger = logger

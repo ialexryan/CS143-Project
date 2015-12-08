@@ -1,12 +1,13 @@
 import sys
 import matplotlib.pyplot as plt
+from collections import Counter
 
 BYTES_PER_MEGABYTE = 1048576.0
 
 def get_times(logs):
     t = []
     for log in logs:
-        t.append(log["time"] / 1000)
+        t.append(log["time"] / 1000.0)
     return t
 
 def display_total_buffer_space(logger, size, index):
@@ -23,7 +24,7 @@ def display_total_amount_left(logger, size, index):
     plt.subplot(size, 1, index)
     graphs = {}  # keys are flow_id, values are [(time, amount_left)]
     for log in logger.flow_received_acknowledgement_logs:
-        graphs.setdefault(log["flow_id"], []).append((log["time"] / 1000, log["amount_left"] / BYTES_PER_MEGABYTE))
+        graphs.setdefault(log["flow_id"], []).append((log["time"] / 1000.0, log["amount_left"] / BYTES_PER_MEGABYTE))
     for flow_id, flow_data in graphs.iteritems():
         times = []
         remaining = []
@@ -60,10 +61,8 @@ def display_packet_round_trip_time(logger, size, index):
 
     graphs = {}  # keys are flow_id, values are [(time, packet)]
     for log in logger.flow_received_acknowledgement_logs:
-        graphs.setdefault(log["flow_id"], []).append((log["time"] / 1000, log["packet"]))
+        graphs.setdefault(log["flow_id"], []).append((log["time"] / 1000.0, log["packet"]))
     for flow_id, flow_data in graphs.iteritems():
-        if (flow_id) is "F1":
-            continue
         times = []
         rtts = []
         for d in flow_data:
@@ -76,8 +75,22 @@ def display_packet_round_trip_time(logger, size, index):
     plt.ylim(ymin=0)
     plt.legend(loc="upper left")
 
+def display_dropped_packets(logger, size, index):
+    plt.subplot(size, 1, index)
 
-graph_functions = [display_total_buffer_space, display_total_amount_left, display_packet_round_trip_time]
+    graphs = {}  # keys are link_id/router_id, values are [time]
+    for log in logger.link_dropped_packet_buffer_full_logs:
+        graphs.setdefault(log["link_id"], []).append(log["time"] / 1000.0)
+    for log in logger.router_dropped_packet_unknown_path_logs:
+        graphs.setdefault(log["router_id"], []).append(log["time"] / 1000.0)
+    for flow_id, flow_data in graphs.iteritems():
+        c = Counter(flow_data)  # keys are times, values are number of dropped packets
+        plt.plot(c.keys(), c.values(), "o", label=flow_id)
+    plt.xlabel("time, seconds")
+    plt.ylabel("# of dropped packets")
+    plt.legend(loc="upper right")
+
+graph_functions = [display_total_buffer_space, display_total_amount_left, display_packet_round_trip_time, display_dropped_packets]
 
 def show_graphs(logger):
     i = 1

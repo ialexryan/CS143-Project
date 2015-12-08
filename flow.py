@@ -22,7 +22,7 @@ class Flow:
         self.destination = destination
         self.amount = amount
         self.total = amount
-        self.start_time = start_time;
+        self.start_time = start_time
         self.event_scheduler = None
         self.logger = None
         self.ack_tracker = PacketTracker()
@@ -45,7 +45,7 @@ class Flow:
         self.controller.wake()
 
     def send_a_packet(self, packet_id):
-        if (self.amount > 0):
+        if self.amount > 0:
             # numbers the packets in ascending order
             # packet is uniquely identified by flow and packet number
             packet = PayloadPacket(packet_id, self.identifier, self.source, self.destination, 1024, 64)
