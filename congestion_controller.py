@@ -73,7 +73,11 @@ class CongestionControllerReno(CongestionController):
         pass
     
     def wake():
-        pass
+        if self.state == fast_recovery:
+            self.state = slow_start
+        else:
+            self.cwnd /= 2
+            send_packet() #TODO determine which packet to send         
 
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
@@ -94,7 +98,7 @@ class CongestionControllerFast(CongestionController):
     
     def acknowledgement_received(self, packet):
         if self.wake_event != None:
-                    self.event_queue.cancel_event(self.wake_event)
+            self.event_queue.cancel_event(self.wake_event)
                     
         del self.not_acknowledged[packet.identifier]
         
@@ -105,7 +109,7 @@ class CongestionControllerFast(CongestionController):
         rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
         if self.base_RTT == -1:
             self.base_RTT = rtt
-        self.cwnd = self.cwnd * self.base_RTT / rtt
+        self.cwnd = self.cwnd * self.base_RTT / rtt + self.alpha
         
         if rtt < self.base_RTT:
             self.base_RTT = rtt
