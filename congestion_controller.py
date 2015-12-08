@@ -145,61 +145,62 @@ class CongestionControllerFast(CongestionController):
         self.alpha = 10.0
         self.base_RTT = -1
         
-    def acknowledgement_received(self, packet):
-        print 'ack received'
+    def acknowledgement_received(self, packet):	
+        if self.wake_event != None:
+            self.event_scheduler.cancel_event(self.wake_event)
+        
+        if self.last_ack_received == packet.next_id:
+            self.duplicate_count += 1
+            if self.duplicate_count == 3:
+                del self.not_acknowledged[packet.next_id]
+                self.timed_out.append(packet.next_id)
+        else:
+            self.duplicate_count = 0
+
+        self.last_ack_received = packet.next_id
+
+        if packet.identifier in self.not_acknowledged.keys():
+            rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
+            if self.base_RTT == -1:
+                self.base_RTT = rtt
+            
+            self.cwnd = self.cwnd * self.base_RTT / rtt + self.alpha
+        
+            if rtt < self.base_RTT:
+                self.base_RTT = rtt
+            del self.not_acknowledged[packet.identifier]
+
         for packet_id in self.not_acknowledged.keys():
             sent_time = self.not_acknowledged[packet_id]
             time_diff = self.clock.current_time - sent_time
             if time_diff > self.timeout:
                 del self.not_acknowledged[packet_id]
-                self.timed_out.append(packet_id);
-	
+                self.timed_out.append(packet_id)
+    
         if len(self.timed_out) > 0:
             self.retransmit = True
         else:
             self.retransmit = False
-			
-        if self.wake_event != None:
-            self.event_queue.cancel_event(self.wake_event)
-                    
-        if packet.identifier in self.not_acknowledged.keys():
-            del self.not_acknowledged[packet.identifier]
-        
-        if self.last_ack_received == packet.next_id:
-            self.duplicate_count += 1
-            if self.duplicate_count >= 3:
-                self.send_packet() #TODO mark what packet to send
-		del self.not_acknowledged[packet.next_id]
-            else:
-		self.last_ack_received = packet.next_id
-	rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
-        if self.base_RTT == -1:
-            self.base_RTT = rtt
-        self.cwnd = self.cwnd * self.base_RTT / rtt + self.alpha
-        
-        if rtt < self.base_RTT:
-            self.base_RTT = rtt
-        
-        self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
+
+        self.send_packet()
+        self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
 
     def send_packet(self):
         if self.retransmit == True:
-	   while (len(self.not_acknowledged) < self.cwnd) and (len(self.timed_out) > 0):
-		packet_id = self.timed_out[0]
-		self.not_acknowledged[packet_id] = self.clock.current_time
-		self.flow.send_a_packet(packet_id)
-		del self.timed_out[0]
-	else:
-           while (len(self.not_acknowledged) < self.cwnd) and (self.window_start * 1024 < self.flow.total):
-           	self.not_acknowledged[self.window_start] = self.clock.current_time
-           	self.flow.send_a_packet(self.window_start)
-		self.window_start += 1
+            while (len(self.not_acknowledged) < self.cwnd) and (len(self.timed_out) > 0):
+                packet_id = self.timed_out[0]
+                self.not_acknowledged[packet_id] = self.clock.current_time
+                self.flow.send_a_packet(packet_id)
+                del self.timed_out[0]
+        else:
+            while (len(self.not_acknowledged) < self.cwnd) and (self.window_start * 1024 < self.flow.total):
+                self.not_acknowledged[self.window_start] = self.clock.current_time
+                self.flow.send_a_packet(self.window_start)
+                self.window_start += 1
 
     
     def wake(self):
-        print ' wake'
         for packet_id in self.not_acknowledged.keys():
-            print ' packet'
             sent_time = self.not_acknowledged[packet_id]
             time_diff = self.clock.current_time - sent_time
             if time_diff > self.timeout:
@@ -209,7 +210,7 @@ class CongestionControllerFast(CongestionController):
                 self.retransmit = True
             else:
                 self.retransmit = False            
-            self.send_packet() #TODO determine which packet to send 
+        self.send_packet() 
         self.wake_event = None      
 
     def __str__(self):
