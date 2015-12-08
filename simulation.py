@@ -49,6 +49,8 @@ class Simulation:
         for item in flows.values() + links.values() + hosts.values() + routers.values():
             item.set_logger(self.logger)
 
+        print "Simulation started..."
+
     def step(self):
         try:
             event = self.event_queue.dequeue_next_event()
