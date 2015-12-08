@@ -15,11 +15,13 @@ class CongestionController:
     def __init__(self):
         self.ssthresh = 1200
         self.cwnd = 1.0
+        self.timeout = 1000
         self.not_acknowledged = dict()
         self.duplicate_count = 0
         self.next_packet_num = 0
         self.last_ack_received = -1
         self.flow = None
+        self.wake_event = None
 
     def acknowledgement_received(self, packet):
         sys.exit("Abstract method acknowledgement_received not implemented")
@@ -28,7 +30,7 @@ class CongestionController:
         sys.exit("Abstract method send_packet not implemented")
         
     def wake(self):
-        pass
+        sys.exit("Abstract method wake not implemented")
         
 class CongestionControllerReno(CongestionController):
     """Implements TCP Reno
@@ -42,6 +44,11 @@ class CongestionControllerReno(CongestionController):
         self.state = slow_start
 
     def acknowledgement_received(self, packet):
+        if self.wake_event != None:
+            self.event_queue.cancel_event(self.wake_event)
+        
+        del self.not_acknowledged[packet.identifier]
+            
         if self.state == slow_start:
             self.cwnd += 1
             if self.cwnd > self.ssthresh:
@@ -60,9 +67,18 @@ class CongestionControllerReno(CongestionController):
         else:
             self.state = congestion_avoidance
             self.cwnd = self.ssthresh
+        
+        self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
             
-    def send_packet(self):
-        self.flow.send_a_packet(self.next_packet_num)
+    def send_packet():
+        pass
+    
+    def wake():
+        if self.state == fast_recovery:
+            self.state = slow_start
+        else:
+            self.cwnd /= 2
+            send_packet() #TODO determine which packet to send         
 
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
@@ -82,6 +98,9 @@ class CongestionControllerFast(CongestionController):
         self.base_RTT = -1
     
     def acknowledgement_received(self, packet):
+        if self.wake_event != None:
+            self.event_queue.cancel_event(self.wake_event)
+                    
         del self.not_acknowledged[packet.identifier]
         
         if self.last_ack_received == packet.next_id:
@@ -91,14 +110,20 @@ class CongestionControllerFast(CongestionController):
         rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
         if self.base_RTT == -1:
             self.base_RTT = rtt
-        self.cwnd = self.cwnd * self.base_RTT / rtt
+        self.cwnd = self.cwnd * self.base_RTT / rtt + self.alpha
         
         if rtt < self.base_RTT:
             self.base_RTT = rtt
+        
+        self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
 
     def send_packet(self):
         pass
-        
+
+    
+    def wake():
+        pass
+
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
                 "cwnd:        " + str(self.cwnd) + "\n"
