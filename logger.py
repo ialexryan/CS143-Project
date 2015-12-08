@@ -24,16 +24,28 @@ class Logger:
         self.clock = clock
         self.verbose = verbose
         self.flow_started_logs = []
+        self.flow_completed_logs = []
         self.flow_send_packet_logs = []
         self.flow_received_acknowledgement_logs = []
         self.router_sending_packet_logs = []
         self.router_dropped_packet_unknown_path_logs = []
         self.updated_routing_table_logs = []
         self.link_dropped_packet_buffer_full_logs = []
+        self.link_buffer_available_space_logs = []
+        self.link_sent_packet_immediately_logs = []
+        self.link_sent_packet_from_buffer_logs = []
 
     def log_flow_started(self, flow_id):
         if self.verbose:
             print str(self.clock) + ": Flow " + str(flow_id) + " started"
+        self.flow_started_logs.append({
+            "time" : self.clock.current_time,
+            "flow_id" : flow_id
+        })
+
+    def log_flow_completed(self, flow_id):
+        if self.verbose:
+            print str(self.clock) + ": Flow " + str(flow_id) + " completed"
         self.flow_started_logs.append({
             "time" : self.clock.current_time,
             "flow_id" : flow_id
@@ -92,6 +104,27 @@ class Logger:
         if self.verbose:
             print str(self.clock) + ": Link " + link_id + " dropped packet because buffer is full " + str(packet)
         self.link_dropped_packet_buffer_full_logs.append({
+            "time": self.clock.current_time,
+            "link_id": link_id,
+            "packet": packet
+        })
+
+    def log_link_buffer_available_space(self, link_id, available_space):
+        self.link_buffer_available_space_logs.append({
+            "time": self.clock.current_time,
+            "link_id": link_id,
+            "available_space": available_space
+        })
+
+    def log_link_sent_packet_immediately(self, link_id, packet):
+        self.link_sent_packet_immediately_logs.append({
+            "time": self.clock.current_time,
+            "link_id": link_id,
+            "packet": packet
+        })
+
+    def log_link_sent_packet_from_buffer(self, link_id, packet):
+        self.link_sent_packet_from_buffer_logs.append({
             "time": self.clock.current_time,
             "link_id": link_id,
             "packet": packet
