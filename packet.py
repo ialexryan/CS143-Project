@@ -23,21 +23,23 @@ class StandardPacket(Packet):
        Superclass of PayloadPacket and AcknowledgementPacket.
 
     Attributes:
+        identifier: the packet ID that a pair of Payload and ACK packets share
         source: The host that sent the packet
         destination: The host to which the packet was sent
         size: The packet size, in bytes
     """
     
-    def __init__(self, source, destination, size):
+    def __init__(self, identifier, source, destination, size):
         Packet.__init__(self, size)
+        self.identifier = identifier
         self.source = source
         self.destination = destination
 
     def __str__(self):
-        return ("StandardPacket\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
+        return ("StandardPacket ID " + self.identifier + "\n"
+                "source:           " + self.source.identifier + "\n"
+                "destination:      " + self.destination.identifier + "\n"
+                "size:             " + str(self.size) + " bytes\n")
 
 class PayloadPacket(StandardPacket):
     """A packet for sending information to another host on the network.
@@ -48,17 +50,17 @@ class PayloadPacket(StandardPacket):
         size: The packet size, in bytes
     """
     
-    def __init__(self, source, destination):
-        StandardPacket.__init__(self, source, destination, 1024)
+    def __init__(self, identifier, source, destination):
+        StandardPacket.__init__(self, identifier, source, destination, 1024)
 
     def acknowledgement(self):
-        return AcknowledgementPacket(self.destination, self.source)
+        return AcknowledgementPacket(self.identifier, self.destination, self.source)
 
     def __str__(self):
-        return ("PayloadPacket\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
+        return ("PayloadPacket ID " + self.identifier + "\n"
+                "source:          " + self.source.identifier + "\n"
+                "destination:     " + self.destination.identifier + "\n"
+                "size:            " + str(self.size) + " bytes\n")
 
 class AcknowledgementPacket(StandardPacket):
     """A packet for acknowledging receipt of a PayloadPacket
@@ -70,14 +72,14 @@ class AcknowledgementPacket(StandardPacket):
         size: The packet size, in bytes
     """
     
-    def __init__(self, source, destination):
-        StandardPacket.__init__(self, source, destination, 64)
+    def __init__(self, identifier, source, destination):
+        StandardPacket.__init__(self, identifier, source, destination, 64)
 
     def __str__(self):
-        return ("AcknowledgementPacket\n"
-                "source:      " + self.source.identifier + "\n"
-                "destination: " + self.destination.identifier + "\n"
-                "size:        " + str(self.size) + " bytes\n")
+        return ("AcknowledgementPacket ID " + self.identifier + "\n"
+                "source:                  " + self.source.identifier + "\n"
+                "destination:             " + self.destination.identifier + "\n"
+                "size:                    " + str(self.size) + " bytes\n")
 
 class RoutingPacket(Packet):
     """A packet for communicating routing information between routers on

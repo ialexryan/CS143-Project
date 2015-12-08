@@ -40,7 +40,10 @@ class Flow:
 
     def send_a_packet(self):
         if (self.amount > 0):
-            packet = PayloadPacket(self.source, self.destination)
+            # numbers the packets in descending order
+            # packet is uniquely identified by flow and packet number
+            packetID = "P" + str(self.amount / 1024) + self.identifier
+            packet = PayloadPacket(packetID, self.source, self.destination)
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.handle_packet(packet)
         else:
