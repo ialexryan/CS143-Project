@@ -40,8 +40,8 @@ class Host(Device):
         if packet.flow_id not in self.ongoing_flows:
             self.ongoing_flows[packet.flow_id] = PacketTracker()
         ack_tracker = self.ongoing_flows[packet.flow_id]
-        ack_id = ack_tracker.account_for_packet(packet.identifier)
-        return packet.acknowledgement(ack_id)
+        ack_tracker.account_for_packet(packet.identifier)
+        return packet.acknowledgement(ack_tracker.next_packet)
 
 
     # Called by flow to send payload and called by links

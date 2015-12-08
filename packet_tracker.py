@@ -16,4 +16,6 @@ class PacketTracker:
         else:
             pass
             #received packet again - do nothing
-        return self.next_packet
+
+    def total_count_received(self):
+        return self.next_packet + len(self.early_packets.queue)
