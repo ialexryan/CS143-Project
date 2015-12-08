@@ -48,6 +48,12 @@ class CongestionControllerReno(CongestionController):
         self.state = slow_start
 
     def acknowledgement_received(self, packet):
+        for packet_id in self.not_acknowledged:
+            sent_time = self.not_acknowledged[packet_id]
+            time_diff = self.clock.current_time - sent_time
+            if time_diff > self.timeout:
+                #need to retransmit
+                
         if self.wake_event != None:
             self.event_scheduler.cancel_event(self.wake_event)
         del self.not_acknowledged[packet.identifier]
@@ -73,13 +79,19 @@ class CongestionControllerReno(CongestionController):
                     self.last_ack_received = self.next_packet_num
                 else:
                     self.cwnd += 1 / self.cwnd
-        
+                    
+        self.send_packet()        
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
-            
+
+                
     def send_packet(self):
-        packet_id = self.next_packet_num
-        self.not_acknowledged[packet_id] = self.clock.current_time
-        self.flow.send_a_packet(packet_id)
+        if self.state == slow_start or self.state == congestion_avoidance:
+            #packet_id = self.next_packet_num
+            #self.not_acknowledged[packet_id] = self.clock.current_time
+            #self.flow.send_a_packet(packet_id)
+            pass
+        else:
+            pass
     
     def wake(self):
         if self.state == fast_recovery:
