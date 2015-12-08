@@ -29,7 +29,8 @@ class Logger:
         self.router_sending_packet_logs = []
         self.router_dropped_packet_unknown_path_logs = []
         self.updated_routing_table_logs = []
-    
+        self.link_dropped_packet_buffer_full_logs = []
+
     def log_flow_started(self, flow_id):
         if self.verbose:
             print str(self.clock) + ": Flow " + str(flow_id) + " started"
@@ -87,3 +88,11 @@ class Logger:
              "timestamp" : timestamp
         })
 
+    def log_link_dropped_packet_buffer_full(self, link_id, packet):
+        if self.verbose:
+            print str(self.clock) + ": Link " + link_id + " dropped packet because buffer is full " + str(packet)
+        self.link_dropped_packet_buffer_full_logs.append({
+            "time": self.clock.current_time,
+            "link_id": link_id,
+            "packet": packet
+        })

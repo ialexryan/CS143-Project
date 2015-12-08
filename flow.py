@@ -22,7 +22,6 @@ class Flow:
         self.amount = amount
         self.start_time = start_time * 1000;
         self.event_scheduler = None
-        self.logger = None
         self.complete = False
         assert isinstance(controller, CongestionController)
         self.controller = controller

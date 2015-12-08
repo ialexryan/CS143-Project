@@ -7,11 +7,13 @@ class Buffer:
 
     Attributes:
         available_space: how much space in the buffer is free, in bytes
+        link: the link this buffer belongs to
         queue: the Queue of packets waiting in the buffer
     """
 
-    def __init__(self, size):
+    def __init__(self, size, link):
         self.available_space = size
+        self.link = link
         self.queue = Queue.Queue()
 
     def put(self, packet, destination):
@@ -19,6 +21,8 @@ class Buffer:
             self.queue.put((packet, destination))
             self.available_space -= packet.size
         # Otherwise, drop the packet
+        else:
+            self.link.logger.log_link_dropped_packet_buffer_full(self.link.identifier, packet)
 
     def get(self):
         (packet, destination) = self.queue.get_nowait()
@@ -43,7 +47,7 @@ class Link:
         self.identifier = identifier
         self.rate = rate
         self.delay = delay
-        self.buffer = Buffer(buffer_size)
+        self.buffer = Buffer(buffer_size, self)
         self.deviceA = deviceA
         self.deviceB = deviceB
         self.busy = False
@@ -56,7 +60,7 @@ class Link:
                 "buffer:   " + str(self.buffer.available_space) + " bytes\n"
                 "device A: " + self.deviceA.identifier + "\n"
                 "device B: " + self.deviceB.identifier) + "\n"
-    
+
     def other_device(self, device):
         if device == self.deviceA:
             return self.deviceB
