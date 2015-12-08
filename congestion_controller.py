@@ -85,7 +85,7 @@ class CongestionControllerReno(CongestionController):
                     self.duplicate_count = 0
                 else:
                     self.cwnd += 1 / self.cwnd
-                self.last_ack_received = packet.next_id
+        self.last_ack_received = packet.next_id
                     
         self.send_packet()        
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
