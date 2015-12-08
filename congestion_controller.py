@@ -18,9 +18,12 @@ class CongestionController:
         self.cwnd = 1.0
         self.timeout = 1000
         self.not_acknowledged = dict()
+        self.timed_out = []
         self.duplicate_count = 0
         self.next_packet_num = 0
         self.last_ack_received = -1
+        self.window_start = 0
+        self.retransmit = False
         self.flow = None
         self.wake_event = None
         
@@ -52,7 +55,10 @@ class CongestionControllerReno(CongestionController):
             sent_time = self.not_acknowledged[packet_id]
             time_diff = self.clock.current_time - sent_time
             if time_diff > self.timeout:
-                #need to retransmit
+                del self.not_acknowledged[packet_id]
+                self.timed_out.append(packet_id);
+        if len(timed_out) > 0:
+            self.retransmit = True
                 
         if self.wake_event != None:
             self.event_scheduler.cancel_event(self.wake_event)
@@ -68,9 +74,8 @@ class CongestionControllerReno(CongestionController):
                 if self.duplicate_count >= 3:
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
-                    self.send_packet()
                     self.state = fast_recovery
-
+                    del self.not_acknowledged[self.next_packet_num]
             else:
                 if(self.duplicate_count == 3):
                     self.cwnd = self.ssthresh
@@ -86,12 +91,21 @@ class CongestionControllerReno(CongestionController):
                 
     def send_packet(self):
         if self.state == slow_start or self.state == congestion_avoidance:
-            #packet_id = self.next_packet_num
-            #self.not_acknowledged[packet_id] = self.clock.current_time
-            #self.flow.send_a_packet(packet_id)
-            pass
+            if self.retransmit == True:
+                while (len(self.unacknowledged) < self.cwnd) and (len(self.timed_out) > 0):
+                    packet_id = self.timed_out[0]
+                    self.not_acknowledged[packet_id] = self.clock.current_time
+                    self.flow.send_a_packet(packet_id)
+                    del self.timed_out[0]
+            else:
+                while (len(self.not_acknowledged) < self.cwnd) and (self.window_start * 1024 < self.flow.total):
+                    self.not_acknowledged[self.window_start] = self.clock.current_time
+                    self.window_start += 1
         else:
-            pass
+            packet_id = self.next_packet_num
+            if packet_id not in self.not_acknowledged.keys():
+                self.not_acknowledged[packet_id] = self.clock.current_time
+                self.flow.send_a_packet(packet_id)
     
     def wake(self):
         if self.state == fast_recovery:
