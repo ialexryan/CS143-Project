@@ -28,7 +28,8 @@ class Host(Device):
         # Send packet across link
         self.link.send_packet(packet, self)
 
-    def receive_packet(self, packet):
+    # Called by links in response to events in the event queue
+    def handle_packet(self, packet, from_link):
         assert packet.destination == self
         # - If this packet is an acknowledgment packet,
         #   notify flow so it can do the bookkeeping
@@ -41,18 +42,6 @@ class Host(Device):
             self.flow.acknowledgement_received(packet)
         else:
             sys.exit("Host doesn't know how to receive packet of type " + type(packet).__name__)
-
-    # Called by flow to send payload and called by links
-    # in response to events in the event queue
-    def handle_packet(self, packet, from_link):
-        if hasattr(packet, 'destination') and packet.destination == self:
-            self.receive_packet(packet)
-        elif hasattr(packet, 'source') and packet.source == self:
-            self.send_packet(packet)
-        elif isinstance(packet, RoutingPacket):
-            pass # Should only happen if two hosts are directly connected by a link
-        else:
-            sys.exit("Host doesn't know how to handle packet that neither originates from or is directed to self")
 
     # Called during parsing to set up object graph
     def attach_link(self, link):
