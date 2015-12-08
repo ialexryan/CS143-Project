@@ -23,6 +23,7 @@ class Flow:
         self.total = amount
         self.start_time = start_time * 1000;
         self.event_scheduler = None
+        self.logger = None
         self.complete = False
         assert isinstance(controller, CongestionController)
         self.controller = controller
@@ -33,6 +34,9 @@ class Flow:
                 "destination: " + self.destination.identifier + "\n"
                 "amount:      " + str(self.amount) + " bytes\n"
                 "start_time:   " + str(self.start_time) + " ms\n")
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets
     def wake(self):
@@ -47,6 +51,7 @@ class Flow:
             self.source.send_packet(packet)
         else:
             self.complete = True
+            self.logger.log_flow_completed(self.identifier)
 
     # Called by a link's host whenever an acknowledgement is received
     def acknowledgement_received(self, packet):
