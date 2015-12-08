@@ -51,6 +51,7 @@ def generate_simulation_from_testcase(input_dict):
         destination = hosts.get(destination_id)
         controller = CongestionControllerReno()
         flow = Flow(f["id"], source, destination, f["amount"] * BYTES_PER_MEGABYTE, f["start"], controller)
+        controller.flow = flow
         flows[f["id"]] = flow
         source.flow = flow
 

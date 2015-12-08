@@ -1,3 +1,7 @@
+slow_start = "Slow Start"
+congestion_avoidance = "Congestion Avoidance"
+fast_recovery = "Fast Recovery"
+
 
 class CongestionController:
     """Implements Congestion Control
@@ -11,6 +15,7 @@ class CongestionController:
         self.ssthresh = 1200
         self.cwnd = 1.0
         self.not_acknowledged = dict()
+        self.flow = None
     
     def acknowledgement_received(self, packet):
         sys.exit("Abstract method acknowledgement_received not implemented")
@@ -28,10 +33,25 @@ class CongestionControllerReno(CongestionController):
     def __init__(self):
         CongestionController.__init__(self)
         self.duplicate_count = 0
-        self.state = 0 # need some way of keeping track of SS, CA, and FR states
+        self.next_packet = None
+        self.state = slow_start
     
     def acknowledgement_received(self, packet):
-        pass
+        if self.state == slow_start:
+            cwnd += 1
+            if cwnd > ssthresh:
+                self.state = congestion_avoidance
+        elif self.state == congestion_avoidance:
+            if next_packet == packet.identifier:
+                cwnd += 1 / cwnd
+            else:
+                duplicate_count += 1
+                if duplicate_count > 3:
+                    self.state = fast_recovery
+                    send_packet()
+        else:
+            self.state = congestion_avoidance
+            self.cwnd = ssthresh
     
     def send_packet():
         pass
