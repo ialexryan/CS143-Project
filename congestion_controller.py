@@ -14,7 +14,7 @@ class CongestionController:
 
     """
     def __init__(self):
-        self.ssthresh = 1200
+        self.ssthresh = 50
         self.cwnd = 1.0
         self.timeout = 1000
         self.not_acknowledged = dict()
@@ -79,15 +79,15 @@ class CongestionControllerReno(CongestionController):
                     self.state = fast_recovery
                     del self.not_acknowledged[packet.next_id]
             else:
-                if(self.duplicate_count == 3):
+                if(self.duplicate_count >= 3):
                     self.cwnd = self.ssthresh
                     self.state = congestion_avoidance
                     self.duplicate_count = 0
-                    self.last_ack_received = packet.next_id
                 else:
                     print 'WINDOW SIZE INCREASED'
                     #sys.exit(1)
                     self.cwnd += 1 / self.cwnd
+                self.last_ack_received = packet.next_id
                     
         self.send_packet()        
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
