@@ -84,8 +84,6 @@ class CongestionControllerReno(CongestionController):
                     self.state = congestion_avoidance
                     self.duplicate_count = 0
                 else:
-                    print 'WINDOW SIZE INCREASED'
-                    #sys.exit(1)
                     self.cwnd += 1 / self.cwnd
                 self.last_ack_received = packet.next_id
                     
