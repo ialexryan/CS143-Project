@@ -1,5 +1,4 @@
 import Queue, heapq
-from clock import Clock
 
 class EventQueue:
     def __init__(self, clock):
@@ -12,12 +11,12 @@ class EventQueue:
         event_identifier = (time, event)
         self.priority_queue.put(event_identifier)
         return event_identifier
-    
+
     """Schedules `event` to occur at `delay` milliseconds after the current time
        and returns an event identifier."""
     def delay_event(self, delay, event):
         return self.schedule_event(self.clock.current_time + delay, event)
-    
+
     """Cancels the event with the given `event_identifier`."""
     def cancel_event(self, event_identifier):
         self.priority_queue.queue.remove(event_identifier)

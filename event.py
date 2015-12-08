@@ -2,7 +2,7 @@
 # (time, Event) tuples. Then we get comparison for free.
 # The Simulation.add_event and Simulation.get_next_event functions are good
 
-from flow import Flow
+import sys
 
 class Event:
     def perform(self):
@@ -28,14 +28,14 @@ class LinkReadyEvent(Event):
     """This event represents the delay between when a links
         sends a given packet and when it can again send another
         packet. This event wakes the link up to continue sending.
-        
+
     Attributes:
         link: The Link that's busy until the next wake
     """
 
     def __init__(self, link):
         self.link = link
-    
+
     def perform(self):
         self.link.wake()
 
@@ -54,7 +54,7 @@ class FlowWakeEvent(Event):
 
     def perform(self):
         self.flow.wake()
-        
+
 class RoutingUpdateEvent(Event):
     """This event triggers a routing table update by instructing
        its associated host to send a routing packet.

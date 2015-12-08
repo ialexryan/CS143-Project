@@ -4,7 +4,7 @@ class AcknowledgementTracker:
     def __init__(self):
         self.next_packet = 0
         self.early_packets = Queue.PriorityQueue()
-        
+
     def account_for_packet(self, packet_id):
         if packet_id == self.next_packet:
             self.next_packet += 1
@@ -18,4 +18,3 @@ class AcknowledgementTracker:
             pass
             #received packet again - do nothing
         return self.next_packet
-

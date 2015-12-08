@@ -39,8 +39,8 @@ def generate_simulation_from_testcase(input_dict):
         deviceA.attach_link(link)
         deviceB.attach_link(link)
         links[l["id"]] = link
-    
-    testcase_num = input_dict["testcase_num"];
+
+    testcase_num = input_dict["testcase_num"]
 
     flows = {}
     for f in flows_info:

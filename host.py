@@ -1,8 +1,8 @@
+import sys
 from device import Device
 from packet import StandardPacket, PayloadPacket, AcknowledgementPacket, RoutingPacket
 from event import RoutingUpdateEvent
 from acknowledgement_tracker import AcknowledgementTracker
-import sys
 
 ROUTING_UPDATE_PERIOD = 100000  #Every 100 seconds?? That's a long time...
 
@@ -24,7 +24,7 @@ class Host(Device):
         self.ongoing_flows = {}
 
     def __str__(self):
-        return ("Host ID  " + self.identifier)
+        return "Host ID  " + self.identifier
 
     def set_logger(self, logger):
         self.logger = logger
@@ -66,7 +66,7 @@ class Host(Device):
 
     # Called during parsing to set up object graph
     def attach_link(self, link):
-        if self.link == None:
+        if self.link is None:
             self.link = link
         else:
             sys.exit("Illegal to attach multiple links to a host")
