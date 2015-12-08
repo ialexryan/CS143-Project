@@ -47,21 +47,22 @@ class CongestionControllerReno(CongestionController):
             if self.cwnd > self.ssthresh:
                 self.state = congestion_avoidance
         elif self.state == congestion_avoidance:
-            if self.next_packet_num == packet.identifier:
-                self.cwnd += 1 / self.cwnd
-            else:
+            if self.next_packet_num == self.last_ack_received:
                 self.duplicate_count += 1
                 if self.duplicate_count >= 3:
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
                     self.send_packet()
                     self.state = fast_recovery
+
+            else:
+                self.cwnd += 1 / self.cwnd
         else:
             self.state = congestion_avoidance
             self.cwnd = self.ssthresh
             
-    def send_packet():
-        pass
+    def send_packet(self):
+        self.flow.send_a_packet(self.next_packet_num)
 
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
@@ -85,8 +86,8 @@ class CongestionControllerFast(CongestionController):
         
         if self.last_ack_received == packet.next_id:
             self.duplicate_count += 1
-            if duplicate_count >= 3:
-                send_packet() #TODO mark what packet to send
+            if self.duplicate_count >= 3:
+                self.send_packet() #TODO mark what packet to send
         rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
         if self.base_RTT == -1:
             self.base_RTT = rtt
@@ -95,9 +96,9 @@ class CongestionControllerFast(CongestionController):
         if rtt < self.base_RTT:
             self.base_RTT = rtt
 
-    def send_packet():
+    def send_packet(self):
         pass
-
+        
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
                 "cwnd:        " + str(self.cwnd) + "\n"
