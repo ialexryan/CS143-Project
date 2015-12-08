@@ -48,7 +48,7 @@ def display_packet_round_trip_time(logger, size, index):
     for log in logger.flow_received_acknowledgement_logs:
         k = (log["packet"].identifier, log["packet"].flow_id)
         # We should only ever receive an ack packet once
-        assert(k not in trips)
+        # assert(k not in trips)
         trips[k] = [143143143143, log["time"]]
     for log in logger.flow_send_packet_logs:
         # We might have sent a packet 179 times, but we only care about the first time
