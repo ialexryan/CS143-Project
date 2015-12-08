@@ -1,7 +1,8 @@
-import Queue, sys
+import sys
 from event import Event, FlowWakeEvent, RoutingUpdateEvent
 from logger import Logger
 from clock import Clock
+from event_queue import EventQueue
 
 # Ensures dynamic routing updates happen before flows begin
 TEMP_FLOW_DELAY = 100000 # Remove when congestion control is implemented
@@ -20,53 +21,35 @@ class Simulation:
     """
 
     def __init__(self, links, flows, hosts, routers, verbose):
-        self.event_queue = Queue.PriorityQueue()
-        self.clock = Clock()
         self.links = links
         self.flows = flows
         self.hosts = hosts
         self.routers = routers
-
-        event_scheduler = EventScheduler(self)
+        
+        # Set up clocks
+        self.clock = Clock()
+        for object in hosts.values():
+            object.clock = self.clock
         
         # Set up event schedulers
-        for flow in flows.values():
-            flow.event_scheduler = event_scheduler
-        for link in links.values():
-            link.event_scheduler = event_scheduler
-        for host in hosts.values():
-            host.event_scheduler = event_scheduler
+        self.event_queue = EventQueue(self.clock)
+        for flow in flows.values() + links.values() + hosts.values():
+            flow.event_scheduler = self.event_queue
         
         # Set up initial events
         for flow in flows.values():
-            event_scheduler.delay_event(flow.start_time + TEMP_FLOW_DELAY, FlowWakeEvent(flow))
+            self.event_queue.delay_event(flow.start_time + TEMP_FLOW_DELAY, FlowWakeEvent(flow))
         for host in hosts.values():
-            event_scheduler.delay_event(0, RoutingUpdateEvent(host))
+            self.event_queue.delay_event(0, RoutingUpdateEvent(host))
         
         # Set up logging
         self.logger = Logger(self.clock, verbose)
-
         for object in flows.values() + links.values() + hosts.values() + routers.values():
             object.logger = self.logger
 
-        # Set up clocks
-        for object in hosts.values():
-            object.clock = self.clock
-
-    def add_event(self, time, event):
-        self.event_queue.put((time, event))
-
-    def get_next_event(self):
-        # This function gets an event from the queue, updates
-        # the global timer accordingly, and returns the event
-        x = self.event_queue.get_nowait()
-        assert x[0] >= self.clock.current_time
-        self.clock.current_time = x[0]
-        return x[1]
-
     def step(self):
         try:
-            event = self.get_next_event()
+            event = self.event_queue.dequeue_next_event()
             event.perform()
             return True
         except Queue.Empty:
@@ -92,10 +75,3 @@ class Simulation:
                 "----FLOWS----\n" + "\n".join(map(str, self.flows.values())) + "\n"
                 "----HOSTS----\n" + "\n".join(map(str, self.hosts.values())) + "\n"
                 "----ROUTERS----\n" + "\n".join(map(str, self.routers.values())))
-
-class EventScheduler:
-    def __init__(self, simulation):
-        self.simulation = simulation
-
-    def delay_event(self, delay, event):
-        self.simulation.add_event(self.simulation.clock.current_time + delay, event)
