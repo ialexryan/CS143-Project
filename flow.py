@@ -22,7 +22,7 @@ class Flow:
         self.destination = destination
         self.amount = amount
         self.total = amount
-        self.start_time = start_time * 1000;
+        self.start_time = start_time;
         self.event_scheduler = None
         self.logger = None
         self.ack_tracker = PacketTracker()
