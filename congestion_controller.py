@@ -73,7 +73,7 @@ class CongestionControllerReno(CongestionController):
         elif self.state == congestion_avoidance or self.state == fast_recovery:
             if packet.next_id == self.last_ack_received:
                 self.duplicate_count += 1
-                if self.duplicate_count >= 3:
+                if self.duplicate_count == 3:
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
                     self.state = fast_recovery
@@ -83,9 +83,11 @@ class CongestionControllerReno(CongestionController):
                     self.cwnd = self.ssthresh
                     self.state = congestion_avoidance
                     self.duplicate_count = 0
+                    self.last_ack_received = packet.next_id
                 else:
+                    print 'WINDOW SIZE INCREASED'
+                    #sys.exit(1)
                     self.cwnd += 1 / self.cwnd
-                self.last_ack_received = packet.next_id
                     
         self.send_packet()        
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
@@ -146,6 +148,7 @@ class CongestionControllerFast(CongestionController):
         self.base_RTT = -1
         
     def acknowledgement_received(self, packet):
+        print 'ack received'
         for packet_id in self.not_acknowledged.keys():
             sent_time = self.not_acknowledged[packet_id]
             time_diff = self.clock.current_time - sent_time
@@ -180,26 +183,6 @@ class CongestionControllerFast(CongestionController):
             self.base_RTT = rtt
         
         self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
-    
-    def acknowledgement_received(self, packet):
-        if self.wake_event != None:
-            self.event_queue.cancel_event(self.wake_event)
-                    
-        del self.not_acknowledged[packet.identifier]
-        
-        if self.last_ack_received == packet.next_id:
-            self.duplicate_count += 1
-            if self.duplicate_count >= 3:
-                self.send_packet() #TODO mark what packet to send
-        rtt = self.clock.current_time - self.not_acknowledged[packet.identifier]
-        if self.base_RTT == -1:
-            self.base_RTT = rtt
-        self.cwnd = self.cwnd * self.base_RTT / rtt + self.alpha
-        
-        if rtt < self.base_RTT:
-            self.base_RTT = rtt
-        
-        self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
 
     def send_packet(self):
         if self.retransmit == True:
@@ -216,7 +199,9 @@ class CongestionControllerFast(CongestionController):
 
     
     def wake(self):
+        print ' wake'
         for packet_id in self.not_acknowledged.keys():
+            print ' packet'
             sent_time = self.not_acknowledged[packet_id]
             time_diff = self.clock.current_time - sent_time
             if time_diff > self.timeout:

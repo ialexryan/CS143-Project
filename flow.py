@@ -28,6 +28,7 @@ class Flow:
         self.ack_tracker = PacketTracker()
         assert isinstance(controller, CongestionController)
         self.controller = controller
+        print 'hello'
 
     def __str__(self):
         return ("Flow ID      " + self.identifier + "\n"
