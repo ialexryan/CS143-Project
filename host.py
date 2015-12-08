@@ -27,7 +27,7 @@ class Host(Device):
         assert packet.source == self
         # Send packet across link
         self.link.send_packet(packet, self)
-    
+
     def receive_packet(self, packet):
         assert packet.destination == self
         # - If this packet is an acknowledgment packet,
@@ -64,6 +64,5 @@ class Host(Device):
     # Called by RoutingUpdateEvent to trigger sending a routing packet,
     # and then reschedules a RoutingUpdateEvent
     def send_routing_packet(self):
-        self.send_packet(RoutingPacket(self, self.clock.current_time))
+        self.send_packet(RoutingPacket(self, self.clock.current_time, 64))
         self.event_scheduler.delay_event(ROUTING_UPDATE_PERIOD, RoutingUpdateEvent(self))
-
