@@ -22,27 +22,27 @@ class Simulation:
         self.flows = flows
         self.hosts = hosts
         self.routers = routers
-        
+
         # Set up clocks
         self.clock = Clock()
-        for object in hosts.values():
-            object.clock = self.clock
-        
+        for item in hosts.values():
+            item.clock = self.clock
+
         # Set up event schedulers
         self.event_queue = EventQueue(self.clock)
         for flow in flows.values() + links.values() + hosts.values():
             flow.event_scheduler = self.event_queue
-        
+
         # Set up initial events
         for flow in flows.values():
             self.event_queue.delay_event(flow.start_time, FlowWakeEvent(flow))
         for host in hosts.values():
             self.event_queue.delay_event(0, RoutingUpdateEvent(host))
-        
+
         # Set up logging
         self.logger = Logger(self.clock, verbose)
-        for object in flows.values() + links.values() + hosts.values() + routers.values():
-            object.logger = self.logger
+        for item in flows.values() + links.values() + hosts.values() + routers.values():
+            item.set_logger(self.logger)
 
     def step(self):
         try:
