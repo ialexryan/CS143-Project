@@ -41,7 +41,6 @@ def generate_simulation_from_testcase(input_dict):
         links[l["id"]] = link
     
     testcase_num = input_dict["testcase_num"];
-    generate_routing_table(testcase_num, routers, links)
 
     flows = {}
     for f in flows_info:
@@ -56,34 +55,3 @@ def generate_simulation_from_testcase(input_dict):
         source.flow = flow
 
     return Simulation(links, flows, hosts, routers, True) # verbose
-
-def generate_routing_table(testcase_num, routers, links):
-    if (testcase_num == 1):
-        routers["R1"].add_table_entry("H1", links.get("L0"))
-        routers["R1"].add_table_entry("H2", links.get("L1"))
-        routers["R2"].add_table_entry("H1", links.get("L1"))
-        routers["R2"].add_table_entry("H2", links.get("L3"))
-        routers["R3"].add_table_entry("H1", links.get("L2"))
-        routers["R3"].add_table_entry("H2", links.get("L4"))
-        routers["R4"].add_table_entry("H1", links.get("L4"))
-        routers["R4"].add_table_entry("H2", links.get("L5"))
-    elif (testcase_num == 2):
-        routers["R1"].add_table_entry("T1", links.get("L1"))
-        routers["R1"].add_table_entry("T2", links.get("L1"))
-        routers["R1"].add_table_entry("S1", links.get("L4"))
-        routers["R1"].add_table_entry("S2", links.get("L5"))
-        
-        routers["R2"].add_table_entry("T1", links.get("L2"))
-        routers["R2"].add_table_entry("T2", links.get("L6"))
-        routers["R2"].add_table_entry("S1", links.get("L1"))
-        routers["R2"].add_table_entry("S2", links.get("L1"))
-        
-        routers["R3"].add_table_entry("T1", links.get("L3"))
-        routers["R3"].add_table_entry("T3", links.get("L3"))
-        routers["R3"].add_table_entry("S1", links.get("L2"))
-        routers["R3"].add_table_entry("S3", links.get("L7"))
-        
-        routers["R4"].add_table_entry("T1", links.get("L8"))
-        routers["R4"].add_table_entry("T3", links.get("L9"))
-        routers["R4"].add_table_entry("S1", links.get("L3"))
-        routers["R4"].add_table_entry("S3", links.get("L3"))
