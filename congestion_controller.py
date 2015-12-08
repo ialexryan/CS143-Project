@@ -63,7 +63,8 @@ class CongestionControllerReno(CongestionController):
                 
         if self.wake_event != None:
             self.event_scheduler.cancel_event(self.wake_event)
-        del self.not_acknowledged[packet.identifier]
+        if packet.identifier in self.not_acknowledged.keys():
+            del self.not_acknowledged[packet.identifier]
             
         if self.state == slow_start:
             self.cwnd += 1
@@ -72,11 +73,11 @@ class CongestionControllerReno(CongestionController):
         elif self.state == congestion_avoidance or self.state == fast_recovery:
             if packet.next_id == self.last_ack_received:
                 self.duplicate_count += 1
-                if self.duplicate_count >= 3:
+                if self.duplicate_count == 3:
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
                     self.state = fast_recovery
-                    del self.not_acknowledged[self.next_packet_num]
+                    del self.not_acknowledged[packet.next_id]
             else:
                 if(self.duplicate_count == 3):
                     self.cwnd = self.ssthresh
@@ -104,7 +105,7 @@ class CongestionControllerReno(CongestionController):
                     self.flow.send_a_packet(self.window_start)
                     self.window_start += 1
         else:
-            packet_id = self.next_packet_num
+            packet_id = self.last_ack_received
             if packet_id not in self.not_acknowledged.keys():
                 self.not_acknowledged[packet_id] = self.clock.current_time
                 self.flow.send_a_packet(packet_id)
