@@ -4,7 +4,7 @@ from event import RoutingUpdateEvent
 from acknowledgement_tracker import AcknowledgementTracker
 import sys
 
-ROUTING_UPDATE_PERIOD = 100000
+ROUTING_UPDATE_PERIOD = 100000  #Every 100 seconds?? That's a long time...
 
 class Host(Device):
     """A host
