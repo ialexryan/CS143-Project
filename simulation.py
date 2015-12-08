@@ -1,4 +1,5 @@
 import sys, Queue
+import stats
 from event import Event, FlowWakeEvent, RoutingUpdateEvent
 from logger import Logger
 from clock import Clock
@@ -65,6 +66,7 @@ class Simulation:
 
         print "All flows finished transmitting!"
         print "Elapsed time in simulation world: " + str(self.clock)
+        stats.show_graphs(self.logger)
         exit()
 
     def __str__(self):
