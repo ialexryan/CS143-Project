@@ -35,7 +35,7 @@ class Host(Device):
         # Send packet across link
         self.link.send_packet(packet, self)
 
-    def payload_received(self, packet):
+    def _payload_received(self, packet):
         assert isinstance(packet, PayloadPacket)
         if packet.flow_id not in self.payload_packet_trackers:
             self.payload_packet_trackers[packet.flow_id] = PacketTracker()
@@ -58,7 +58,7 @@ class Host(Device):
         #   by sending an acknowledgement packet across
         #   the same link
         if isinstance(packet, PayloadPacket):
-            ack_packet = self.payload_received(packet)
+            ack_packet = self._payload_received(packet)
             self.link.send_packet(ack_packet, self)
         elif isinstance(packet, AcknowledgementPacket):
             self.flows[packet.flow_id].acknowledgement_received(packet)
