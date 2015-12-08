@@ -8,7 +8,7 @@ class EventQueue:
 
     """Schedules `event` to occur at `time` and returns an event identifier."""
     def schedule_event(self, time, event):
-        assert time > clock.current_time
+        assert time >= self.clock.current_time
         event_identifier = (time, event)
         self.priority_queue.put(event_identifier)
         return event_identifier
