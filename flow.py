@@ -36,14 +36,13 @@ class Flow:
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets
     def wake(self):
-        self.send_a_packet()
+        self.controller.wake()
 
-    def send_a_packet(self):
+    def send_a_packet(self, packet_id):
         if (self.amount > 0):
             # numbers the packets in ascending order
             # packet is uniquely identified by flow and packet number
-            packetID = (self.total - self.amount) / 1024
-            packet = PayloadPacket(packetID, self.identifier, self.source, self.destination, 1024, 64)
+            packet = PayloadPacket(packet_id, self.identifier, self.source, self.destination, 1024, 64)
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.send_packet(packet)
         else:
