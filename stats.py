@@ -38,14 +38,25 @@ def display_total_amount_left(logger, size, index):
 def display_packet_round_trip_time(logger, size, index):
     plt.subplot(size, 1, index)
 
-    trips = {}  # keys are (packet_id, flow_id)'s, values are ack times
+    # The tricky bit here is that we have to account for sending
+    # the same packet id multiple times in the case of dropped packets.
+    # Packet ID's are also not unique across flows, so we use (packet_id, flow_id) as
+    # a unique(ish, see first sentence) identifier.
+
+    trips = {}  # keys are (packet_id, flow_id)'s, values are [start, finish] times
     for log in logger.flow_received_acknowledgement_logs:
-        trips[(log["packet"].identifier, log["packet"].flow_id)] = log["time"]
+        k = (log["packet"].identifier, log["packet"].flow_id)
+        # We should only ever receive an ack packet once
+        assert(k not in trips)
+        trips[k] = [143143143143, log["time"]]
     for log in logger.flow_send_packet_logs:
-        # just kidding, now the values are RTT's
-        assert((log["packet"].identifier, log["packet"].flow_id) in trips)
-        trips[(log["packet"].identifier, log["packet"].flow_id)] -= log["time"]
-        assert(trips[(log["packet"].identifier, log["packet"].flow_id)] > 0)
+        # We might have sent a packet 179 times, but we only care about the first time
+        k = (log["packet"].identifier, log["packet"].flow_id)
+        assert(k in trips)
+        if log["time"] < trips[k][0]:
+            trips[k][0] = log["time"]
+        assert(trips[k][0] != 143143143143)
+        assert(trips[k][1] - trips[k][0] > 0)
 
     graphs = {}  # keys are flow_id, values are [(time, packet)]
     for log in logger.flow_received_acknowledgement_logs:
@@ -56,14 +67,14 @@ def display_packet_round_trip_time(logger, size, index):
         times = []
         rtts = []
         for d in flow_data:
-            rtt = trips[(d[1].identifier, d[1].flow_id)]
+            trip = trips[(d[1].identifier, d[1].flow_id)]
             times.append(d[0])
-            rtts.append(rtt)
+            rtts.append(trip[1]-trip[0])
         plt.plot(times, rtts, label=flow_id)
     plt.xlabel("time, seconds")
     plt.ylabel("RTT, ms")
     plt.ylim(ymin=0)
-    plt.legend(loc="upper right")
+    plt.legend(loc="upper left")
 
 
 graph_functions = [display_total_buffer_space, display_total_amount_left, display_packet_round_trip_time]
