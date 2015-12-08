@@ -1,4 +1,6 @@
 import sys
+from event import FlowWakeEvent
+
 slow_start = "Slow Start"
 congestion_avoidance = "Congestion Avoidance"
 fast_recovery = "Fast Recovery"
@@ -26,7 +28,7 @@ class CongestionController:
     def acknowledgement_received(self, packet):
         sys.exit("Abstract method acknowledgement_received not implemented")
 
-    def send_packet():
+    def send_packet(self):
         sys.exit("Abstract method send_packet not implemented")
         
     def wake(self):
@@ -70,10 +72,10 @@ class CongestionControllerReno(CongestionController):
         
         self.wake_event = self.event_queue.delay_event(self.timeout, FlowWakeEvent(self.flow))
             
-    def send_packet():
+    def send_packet(self):
         pass
     
-    def wake():
+    def wake(self):
         if self.state == fast_recovery:
             self.state = slow_start
         else:
@@ -121,7 +123,7 @@ class CongestionControllerFast(CongestionController):
         pass
 
     
-    def wake():
+    def wake(self):
         pass
 
     def __str__(self):
