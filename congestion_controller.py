@@ -101,9 +101,10 @@ class CongestionControllerReno(CongestionController):
             # Check if this is a duplicate acknowledgement
             if packet.next_id == self.last_ack_received:
                 self.duplicate_count += 1
-                # After 3 duplicate acknowledgements, halve the congestion
-                # window size and move into fast recovery phase
-                if self.duplicate_count == 3:
+                # After 3 duplicate acknowledgements, if the packet has not
+                # already been received, halve the congestion window size and
+                # move into fast recovery phase
+                if (self.duplicate_count == 3) and (packet.next_id in self.not_acknowledged.keys()):
                     self.cwnd /= 2
                     self.ssthresh = self.cwnd
                     self.state = fast_recovery
@@ -111,12 +112,14 @@ class CongestionControllerReno(CongestionController):
             # This is not a duplicate acknowledgement
             else:
                 # First non-duplicate acknowledgement in fast recovery phase
-                if(self.duplicate_count >= 3):
+                if (self.duplicate_count >= 3) and (packet.next_id in self.not_acknowledged.keys()):
                     self.cwnd = self.ssthresh
                     self.state = congestion_avoidance
-                    self.duplicate_count = 0
                 else:
                     self.cwnd += 1 / self.cwnd
+                # reset duplicate count since the chain of dupACKS is broken
+                self.duplicate_count = 0
+                
         self.last_ack_received = packet.next_id
                     
         self.send_packet()        
@@ -189,7 +192,7 @@ class CongestionControllerFast(CongestionController):
         
         if self.last_ack_received == packet.next_id:
             self.duplicate_count += 1
-            if self.duplicate_count == 3:
+            if (self.duplicate_count == 3) and (packet.next_id in self.not_acknowledged.keys()):
                 del self.not_acknowledged[packet.next_id]
                 self.timed_out.append(packet.next_id)
         else:
