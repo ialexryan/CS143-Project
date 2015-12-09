@@ -48,7 +48,7 @@ def display_packet_round_trip_time(logger, size, index):
     for log in logger.flow_received_acknowledgement_logs:
         k = (log["packet"].identifier, log["packet"].flow_id)
         # We should only ever receive an ack packet once
-        assert(k not in trips)
+        # assert(k not in trips)
         trips[k] = [143143143143, log["time"]]
     for log in logger.flow_send_packet_logs:
         # We might have sent a packet 179 times, but we only care about the first time
@@ -98,4 +98,6 @@ def show_graphs(logger):
     for f in graph_functions:
         f(logger, size, i)
         i += 1
+    fig = plt.gcf()
+    fig.canvas.set_window_title("TCP Fast" if logger.fast_insteadof_reno else "TCP Reno")
     plt.show()

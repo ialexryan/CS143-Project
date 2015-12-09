@@ -10,13 +10,11 @@ BYTES_PER_KILOBYTE = 1024.0
 BYTES_PER_MEGABYTE = 1048576.0
 BYTES_PER_MEGABIT = 131072.0
 
-VERBOSE = True
-
 def read_testcases():
     with open('testcases.json') as testcases_file:
         return json.load(testcases_file)
 
-def generate_simulation_from_testcase(input_dict):
+def generate_simulation_from_testcase(input_dict, verbose, fast_insteadof_reno):
     links_info = input_dict["links"]
     flows_info = input_dict["flows"]
     hosts_info = input_dict["hosts"]
@@ -50,10 +48,10 @@ def generate_simulation_from_testcase(input_dict):
         destination_id = f["destination"]
         source = hosts.get(source_id)
         destination = hosts.get(destination_id)
-        controller = CongestionControllerReno()
+        controller = CongestionControllerFast() if fast_insteadof_reno else CongestionControllerReno()
         flow = Flow(f["id"], source, destination, f["amount"] * BYTES_PER_MEGABYTE, f["start"] * 1000, controller)
         controller.flow = flow
         flows[f["id"]] = flow
         source.flows[f["id"]] = flow
 
-    return Simulation(links, flows, hosts, routers, VERBOSE) # verbose
+    return Simulation(links, flows, hosts, routers, verbose, fast_insteadof_reno) # verbose

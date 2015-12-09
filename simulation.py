@@ -18,7 +18,7 @@ class Simulation:
         routers: dictionary of routers (key is the ID, value is the Router object)
     """
 
-    def __init__(self, links, flows, hosts, routers, verbose):
+    def __init__(self, links, flows, hosts, routers, verbose, fast_insteadof_reno):
         self.links = links
         self.flows = flows
         self.hosts = hosts
@@ -45,9 +45,11 @@ class Simulation:
             self.event_queue.delay_event(0, RoutingUpdateEvent(host))
 
         # Set up logging
-        self.logger = Logger(self.clock, verbose)
+        self.logger = Logger(self.clock, verbose, fast_insteadof_reno)
         for item in flows.values() + links.values() + hosts.values() + routers.values():
             item.set_logger(self.logger)
+
+        print "Simulation started..."
 
     def step(self):
         try:

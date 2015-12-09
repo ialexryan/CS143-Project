@@ -20,9 +20,10 @@ class Logger:
         TO DO
     """
 
-    def __init__(self, clock, verbose):
+    def __init__(self, clock, verbose, fast_insteadof_reno):
         self.clock = clock
         self.verbose = verbose
+        self.fast_insteadof_reno = fast_insteadof_reno
         self.flow_started_logs = []
         self.flow_completed_logs = []
         self.flow_send_packet_logs = []
@@ -36,16 +37,16 @@ class Logger:
         self.link_sent_packet_from_buffer_logs = []
 
     def log_flow_started(self, flow_id):
-        if self.verbose:
-            print str(self.clock) + ": Flow " + str(flow_id) + " started"
+        # if self.verbose:  tbh I think this should always print
+        print str(self.clock) + ": Flow " + str(flow_id) + " started"
         self.flow_started_logs.append({
             "time" : self.clock.current_time,
             "flow_id" : flow_id
         })
 
     def log_flow_completed(self, flow_id):
-        if self.verbose:
-            print str(self.clock) + ": Flow " + str(flow_id) + " completed"
+        # if self.verbose:  tbh I think this should always print
+        print str(self.clock) + ": Flow " + str(flow_id) + " completed"
         self.flow_started_logs.append({
             "time" : self.clock.current_time,
             "flow_id" : flow_id
