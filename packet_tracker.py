@@ -6,15 +6,16 @@ class PacketTracker:
        that is expected next.
     
     Attributes:
-        next_packet: Next expected packet
-        early_packets: Queue of packets that arrived before packets with smaller
-            id numbers
+        next_packet: Identifier of next expected packet
+        early_packets: Ordered array holding packets that arrived out of order,
+            specifically, recieved packets with ids greater than `next_packet`
     """
 
     def __init__(self):
         self.next_packet = 0
         self.early_packets = Queue.PriorityQueue()
 
+    """Account that a packet has been recieved by updating internal variables."""
     # Called by flow when an acknowledgement has been received
     def account_for_packet(self, packet_id):
         # The acknowledgement we just received is for the packet that 
@@ -33,6 +34,7 @@ class PacketTracker:
         else:
             pass
             #received packet again - do nothing
-            
+
+    """The total number of packets accounted for, disregarding duplicates."""
     def total_count_received(self):
         return self.next_packet + len(self.early_packets.queue)

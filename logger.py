@@ -1,24 +1,5 @@
-"""
-    flow started event
-    flow ended event
-    flow sends packet
-    flow receives packet
-    link receives packet from device
-    link drops packet
-    link equeues packet
-    link dequeus + sends packet
-    link receives packet at other end
-    router recieves packet
-    router sends packet on link
-    // router updates routing table...
-"""
-
 class Logger:
-    """A logging class.
-
-    Attributes:
-        TO DO
-    """
+    """A logger that saves recieved logs and optionally logs to the standard output."""
 
     def __init__(self, clock, verbose, fast_insteadof_reno):
         self.clock = clock

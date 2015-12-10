@@ -3,32 +3,32 @@ from device import Device
 from packet import StandardPacket, RoutingPacket
 
 class RoutingTable():
-    """A simple routing table class. This is essentially a
-       dictionary that maps an identifier to a link.
+    """A table that records which link ought to be used for a given host
+       and can be updated based on new routing packets.
 
     Attributes:
-        table: The dictionary (identifier string, Link)
+        _table: The dictionary mapping host_identifier to the tuple (timestamp, link)
     """
 
     def __init__(self):
-        self.table = {}
+        self._table = {}
 
     def get_entry(self, host_identifier):
-        if host_identifier in self.table:
-            return self.table[host_identifier][1]
+        if host_identifier in self._table:
+            return self._table[host_identifier][1]
         else:
             return None
 
     def _update_entry(self, host_identifier, timestamp, link):
-        self.table[host_identifier] = (timestamp, link)
+        self._table[host_identifier] = (timestamp, link)
 
     # Returns true when the information updated the routing table
     def update_entry(self, host_identifier, timestamp, link):
-        if host_identifier not in self.table:
+        if host_identifier not in self._table:
             self._update_entry(host_identifier, timestamp, link)
             return True
         else:
-            (old_timestamp, _) = self.table[host_identifier]
+            (old_timestamp, _) = self._table[host_identifier]
             if timestamp > old_timestamp:
                 self._update_entry(host_identifier, timestamp, link)
                 return True
@@ -36,11 +36,12 @@ class RoutingTable():
                 return False
 
 class Router(Device):
-    """A router
+    """A device that routes packets based on its routing table.
 
     Attributes:
         identifier: The unique identification of the router
         routing_table: The instance of RoutingTable
+        logger: the Logger to be used
     """
 
     def __init__(self, identifier):
@@ -55,6 +56,7 @@ class Router(Device):
     def set_logger(self, logger):
         self.logger = logger
 
+    """Update the routing table, and forward the routing packet over the proper links, if necessary."""
     def _handle_routing_packet(self, packet, from_link):
         assert isinstance(packet, RoutingPacket)
         previous_link = self.routing_table.get_entry(packet.source) # Used for logging
@@ -65,9 +67,9 @@ class Router(Device):
                 if link is not from_link:
                     link.send_packet(packet, self)
 
+    """Forward the packet over the correct link as determined by the routing table."""
     def _handle_standard_packet(self, packet):
         assert isinstance(packet, StandardPacket)
-        # Use static routing
         dest = packet.destination
         link = self.routing_table.get_entry(dest.identifier)
         if link is not None:
@@ -76,8 +78,7 @@ class Router(Device):
         else:
             self.logger.log_router_dropped_packet_unknown_path(self.identifier, packet)
 
-    # Called by links in response to to forward packet to a
-    # given destination
+    """Deliever a packet over `from_link` to the router for forwarding."""
     def handle_packet(self, packet, from_link):
         if isinstance(packet, StandardPacket):
             self._handle_standard_packet(packet)
