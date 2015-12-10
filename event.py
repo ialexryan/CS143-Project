@@ -5,7 +5,14 @@
 import sys
 
 class Event:
-    """Function implemented by concrete base classes of Event to perform their function."""
+    """Function implemented by concrete base classes of Event to perform their function.
+        
+    Attributes:
+        is_canceled: records whether an event has been canceled
+    """
+    def __init__(self):
+        self.is_canceled = False
+    
     def perform(self):
         sys.exit("Abstract method perform not implemented")
 
@@ -19,6 +26,7 @@ class PacketArrivalEvent(Event):
         from_link: the Link on which the packet is arriving
     """
     def __init__(self, packet, device, from_link):
+        Event.__init__(self)
         self.packet = packet
         self.from_link = from_link
         self.device = device
@@ -36,6 +44,7 @@ class LinkReadyEvent(Event):
     """
 
     def __init__(self, link):
+        Event.__init__(self)
         self.link = link
 
     def perform(self):
@@ -52,6 +61,7 @@ class FlowWakeEvent(Event):
         flow: the Flow that is being started
     """
     def __init__(self, flow):
+        Event.__init__(self)
         self.flow = flow
 
     def perform(self):
@@ -65,6 +75,7 @@ class RoutingUpdateEvent(Event):
         host: the host for which the routing information needs be updated
     """
     def __init__(self, host):
+        Event.__init__(self)
         self.host = host
 
     def perform(self):
