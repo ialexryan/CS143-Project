@@ -1,18 +1,3 @@
-"""
-    flow started event
-    flow ended event
-    flow sends packet
-    flow receives packet
-    link receives packet from device
-    link drops packet
-    link equeues packet
-    link dequeus + sends packet
-    link receives packet at other end
-    router recieves packet
-    router sends packet on link
-    // router updates routing table...
-"""
-
 class Logger:
     """Singleton class, stores arrays of log entries, which are dictionaries.
         Has methods for adding log entries to those dictionaries."""
