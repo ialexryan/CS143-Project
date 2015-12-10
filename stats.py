@@ -13,7 +13,7 @@ def block_average(input_times, input_values):   # input_times in milliseconds
     output_values = []
 
     last_interval_start = 0;
-    window_size = 50;   # milliseconds
+    window_size = 100;   # milliseconds
     current_window_count = 0;
     current_window_total = 0;
     for i in range(len(input_times)):
