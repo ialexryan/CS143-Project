@@ -39,6 +39,8 @@ def display_total_buffer_space(logger, size, index):
     plt.plot(x, y)
     plt.xlabel("time, seconds")
     plt.ylabel("total free buffer space, bytes")
+    plt.xlim(xmin=0)
+    plt.ylim(ymin=0)
     plt.title("100ms average of total free buffer space")
 
 def display_total_amount_left(logger, size, index):
@@ -56,6 +58,8 @@ def display_total_amount_left(logger, size, index):
         plt.plot(x, y, label=flow_id)
     plt.xlabel("time, seconds")
     plt.ylabel("total amount left to transmit, MB")
+    plt.xlim(xmin=0)
+    plt.ylim(ymin=0)
     plt.legend(loc='upper right')
 
 def display_packet_round_trip_time(logger, size, index):
@@ -96,6 +100,7 @@ def display_packet_round_trip_time(logger, size, index):
     plt.xlabel("time, seconds")
     plt.ylabel("RTT, ms")
     plt.title("100ms average of RTT time per flow")
+    plt.xlim(xmin=0)
     plt.ylim(ymin=0)
     plt.legend(loc="lower right")
 
