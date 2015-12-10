@@ -66,6 +66,7 @@ class CongestionControllerReno(CongestionController):
     def __init__(self):
         CongestionController.__init__(self)
         self.state = slow_start
+        self.FR_packet = None
 
     def acknowledgement_received(self, packet):
         
@@ -97,7 +98,7 @@ class CongestionControllerReno(CongestionController):
             # switch to congestion avoidance phase
             if self.cwnd >= self.ssthresh:
                 self.state = congestion_avoidance
-        elif self.state == congestion_avoidance or self.state == fast_recovery:
+        elif self.state == congestion_avoidance:
             # Check if this is a duplicate acknowledgement
             if packet.next_id == self.last_ack_received:
                 self.duplicate_count += 1
@@ -111,12 +112,20 @@ class CongestionControllerReno(CongestionController):
                     del self.not_acknowledged[packet.next_id]
             # This is not a duplicate acknowledgement
             else:
-                # First non-duplicate acknowledgement in fast recovery phase
-                if (self.duplicate_count >= 3) and (packet.next_id in self.not_acknowledged.keys()):
+                self.cwnd += 1 / self.cwnd
+                # reset duplicate count since the chain of dupACKS is broken
+                self.duplicate_count = 0
+        elif self.state == fast_recovery:
+            # Check if this is a duplicate acknowledgement
+            if packet.next_id == self.last_ack_received:
+                self.duplicate_count += 1
+                self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
+                return
+            else:
+                # check if this is the ACK for the packet transmitted during Fast Recovery
+                if packet.identifier == self.FR_packet:
                     self.cwnd = self.ssthresh
                     self.state = congestion_avoidance
-                else:
-                    self.cwnd += 1 / self.cwnd
                 # reset duplicate count since the chain of dupACKS is broken
                 self.duplicate_count = 0
                 
