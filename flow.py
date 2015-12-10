@@ -51,6 +51,7 @@ class Flow:
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.send_packet(packet)
         else:
+            print "HEY YOU we're done"
             self.logger.log_flow_completed(self.identifier)
 
     # Called by a link's host whenever an acknowledgement is received

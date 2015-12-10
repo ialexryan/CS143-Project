@@ -1,5 +1,6 @@
 import sys
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from collections import Counter
 
 BYTES_PER_MEGABYTE = 1048576.0
@@ -76,7 +77,7 @@ def display_packet_round_trip_time(logger, size, index):
     plt.legend(loc="upper left")
 
 def display_dropped_packets(logger, size, index):
-    plt.subplot(size, 1, index)
+    sp = plt.subplot(size, 1, index)
 
     graphs = {}  # keys are link_id/router_id, values are [time]
     for log in logger.link_dropped_packet_buffer_full_logs:
@@ -88,6 +89,7 @@ def display_dropped_packets(logger, size, index):
         plt.plot(c.keys(), c.values(), "o", label=flow_id)
     plt.xlabel("time, seconds")
     plt.ylabel("# of dropped packets")
+    sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
     plt.legend(loc="upper right")
 
 graph_functions = [display_total_buffer_space, display_total_amount_left, display_packet_round_trip_time, display_dropped_packets]
