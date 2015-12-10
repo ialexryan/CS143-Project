@@ -4,6 +4,7 @@ class StandardPacket():
 
     Attributes:
         identifier: the packet ID that a pair of Payload and ACK packets share
+        duplicate_num: Which duplicate of the original packet this packet is
         flowID: The flow that sent the packet
         source: The host that sent the packet
         destination: The host to which the packet was sent
@@ -24,6 +25,7 @@ class PayloadPacket(StandardPacket):
 
     Attributes:
         identifier: The packet number sent by a flow
+        duplicate_num: Which duplicate of the original packet this packet is
         flow_id: The flow that sent the packet
         source: The host that sent the packet
         destination: The host to which the packet was sent
@@ -52,6 +54,7 @@ class AcknowledgementPacket(StandardPacket):
 
     Attributes:
         identifier: The packet number sent by a flow
+        duplicate_num: Which duplicate of the original packet this packet is
         next_id: ID of next expected packet
         flow_id: The flow that sent the packet
         source: The host that sent the packet

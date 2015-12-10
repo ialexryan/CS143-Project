@@ -61,6 +61,8 @@ class CongestionControllerReno(CongestionController):
     Attributes:
         state: State that TCP Reno is currently in - slow start, congestion 
             avoidance, or fast recovery/fast retransmit
+        FR_packet: The packet indentifier for the packet that was sent during
+            fast recovery
     """
 
     def __init__(self):
@@ -68,6 +70,7 @@ class CongestionControllerReno(CongestionController):
         self.state = slow_start
         self.FR_packet = None
 
+    '''Processes an acknowledgement packet based on the state of TCP Reno'''
     def acknowledgement_received(self, packet):
         
         # Check for any unacknowledged packets that have timed out
@@ -133,7 +136,7 @@ class CongestionControllerReno(CongestionController):
         self.send_packet()
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
 
-    # Determines which packet should be sent, depending on the phase of TCP Reno            
+    '''Determines which packet should be sent, depending on the phase of TCP Reno'''
     def send_packet(self):
         if self.state == slow_start or self.state == congestion_avoidance:
             if self.retransmit == True:
@@ -160,7 +163,7 @@ class CongestionControllerReno(CongestionController):
                 self.not_acknowledged[(packet_id, dup_num + 1)] = self.clock.current_time
                 self.flow.send_a_packet(packet_id, dup_num + 1)
     
-    # Start sending packets when congestion control first begins
+    '''Start sending packets when congestion control first begins or if the flow times out'''
     def wake(self):
         # Change from fast recovery to slow start phase
         if self.state == fast_recovery:
@@ -190,48 +193,58 @@ class CongestionControllerFast(CongestionController):
     """Implements TCP Fast
 
     Attributes:
-        alpha:
+        alpha: some constant that affects how window size changes
+        base_RTT: The minimum RTT encountered
     """
 
     def __init__(self):
         CongestionController.__init__(self)
         self.alpha = 10.0
         self.base_RTT = -1
-        
+    
+    '''Processes an acknowledgement packet and update window size for FAST TCP'''
     def acknowledgement_received(self, packet):	
         if self.wake_event != None:
             self.event_scheduler.cancel_event(self.wake_event)
         
+        # Check if this is a duplicate acknowledgement
         if self.last_ack_received == packet.next_id:
             self.duplicate_count += 1
             keys = [key for key in self.not_acknowledged.keys() if key[0] == packet.next_id]
+            # After 3 duplicate acknowledgements, if the packet has not
+            # already been received, it has been dropped so it needs to be re-sent
             if (self.duplicate_count == 3) and (len(keys) > 0):
                 expected = keys[0]
                 del self.not_acknowledged[(packet.next_id, expected[1])]
                 self.timed_out.append((packet.next_id, expected[1]))
         else:
+            # reset duplicate count since the chain of dupACKS in broken
             self.duplicate_count = 0
 
         self.last_ack_received = packet.next_id
 
+        # This acknowledgement is for an unacknowledged packet
         if (packet.identifier, packet.duplicate_num) in self.not_acknowledged.keys():
+            # calculate RTT of this packet
             rtt = self.clock.current_time - self.not_acknowledged[(packet.identifier, packet.duplicate_num)]
+            # first packet, initialize base_RTT
             if self.base_RTT == -1:
                 self.base_RTT = rtt
-            
+            # update window size
             self.cwnd = self.cwnd * self.base_RTT / rtt + self.alpha
-        
+            # update minimum RTT
             if rtt < self.base_RTT:
                 self.base_RTT = rtt
+            # Remove received packet from list of unacknowledged packets
             del self.not_acknowledged[(packet.identifier, packet.duplicate_num)]
 
+        # Check for any unacknowledged packets that have timed out
         for (packet_id, dup_num) in self.not_acknowledged.keys():
             sent_time = self.not_acknowledged[(packet_id, dup_num)]
             time_diff = self.clock.current_time - sent_time
             if time_diff > self.timeout:
                 del self.not_acknowledged[(packet_id, dup_num)]
                 self.timed_out.append((packet_id, dup_num))
-    
         if len(self.timed_out) > 0:
             self.retransmit = True
         else:
@@ -240,31 +253,36 @@ class CongestionControllerFast(CongestionController):
         self.send_packet()
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))
 
+    '''Sends packets while the number of packets in transit is within the window size'''
     def send_packet(self):
         if self.retransmit == True:
+            # send timed out packets. Their duplicate number will be incremented
             while (len(self.not_acknowledged) < self.cwnd) and (len(self.timed_out) > 0):
                 (packet_id, dup_num) = self.timed_out[0]
                 self.not_acknowledged[(packet_id, dup_num + 1)] = self.clock.current_time
                 self.flow.send_a_packet(packet_id, dup_num + 1)
                 del self.timed_out[0]
         else:
+            # send new packets
             while (len(self.not_acknowledged) < self.cwnd) and (self.window_start * 1024 < self.flow.total):
                 self.not_acknowledged[(self.window_start, 0)] = self.clock.current_time
                 self.flow.send_a_packet(self.window_start, 0)
                 self.window_start += 1
 
-    
+    '''Start sending packets when congestion control first begins or if the flow times out'''
     def wake(self):
+        # Check for any unacknowledged packets that have timed out
         for packet_id in self.not_acknowledged.keys():
             sent_time = self.not_acknowledged[packet_id]
             time_diff = self.clock.current_time - sent_time
             if time_diff > self.timeout:
                 del self.not_acknowledged[packet_id]
-                self.timed_out.append(packet_id);
+                self.timed_out.append(packet_id)
             if len(self.timed_out) > 0:
                 self.retransmit = True
             else:
-                self.retransmit = False            
+                self.retransmit = False
+
         self.send_packet() 
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))    
 
