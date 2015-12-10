@@ -6,7 +6,7 @@ from packet_tracker import PacketTracker
 import sys
 
 """The wait time, in milliseconds, between sending out each routing update packet"""
-ROUTING_UPDATE_PERIOD = 100000
+ROUTING_UPDATE_PERIOD = 3000
 
 class Host(Device):
     """A host
