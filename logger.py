@@ -14,11 +14,8 @@
 """
 
 class Logger:
-    """A logging class.
-
-    Attributes:
-        TO DO
-    """
+    """Singleton class, stores arrays of log entries, which are dictionaries.
+        Has methods for adding log entries to those dictionaries."""
 
     def __init__(self, clock, verbose, fast_insteadof_reno):
         self.clock = clock
@@ -37,7 +34,6 @@ class Logger:
         self.link_sent_packet_from_buffer_logs = []
 
     def log_flow_started(self, flow_id):
-        # if self.verbose:  tbh I think this should always print
         print str(self.clock) + ": Flow " + str(flow_id) + " started"
         self.flow_started_logs.append({
             "time" : self.clock.current_time,
@@ -45,7 +41,6 @@ class Logger:
         })
 
     def log_flow_completed(self, flow_id):
-        # if self.verbose:  tbh I think this should always print
         print str(self.clock) + ": Flow " + str(flow_id) + " completed"
         self.flow_completed_logs.append({
             "time" : self.clock.current_time,
