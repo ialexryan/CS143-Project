@@ -51,6 +51,7 @@ class Simulation:
 
         print "Simulation started..."
 
+    """Performs a single event from the event queue."""
     def step(self):
         try:
             event = self.event_queue.dequeue_next_event()
@@ -59,12 +60,14 @@ class Simulation:
         except Queue.Empty:
             return False
 
+    """Determines whether all flows have been completed."""
     def all_flows_finished(self):
         for flow in self.flows.values():
             if not flow.completed():
                 return False
         return True
 
+    """Repeatedly performs events from the queue until all flows have been completed."""
     def run(self):
         while not self.all_flows_finished():
             if not self.step():
