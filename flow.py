@@ -43,11 +43,12 @@ class Flow:
     def wake(self):
         self.controller.wake()
 
-    def send_a_packet(self, packet_id):
+    def send_a_packet(self, packet_id, duplicate_num):
         if self.amount > 0:
             # numbers the packets in ascending order
-            # packet is uniquely identified by flow and packet number
-            packet = PayloadPacket(packet_id, self.identifier, self.source, self.destination, 1024, 64)
+            # packet is uniquely identified by flow, packet number, and which
+            # duplicate of the packet it is
+            packet = PayloadPacket(packet_id, duplicate_num, self.identifier, self.source, self.destination, 1024, 64)
             self.logger.log_flow_send_packet(self.identifier, packet)
             self.source.send_packet(packet)
         else:
