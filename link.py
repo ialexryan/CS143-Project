@@ -10,6 +10,7 @@ class Buffer:
         available_space: how much space in the buffer is free, in bytes
         link: the link this buffer belongs to
         queue: the Queue of packets waiting in the buffer
+        logger: the Logger used by the buffer
     """
 
     def __init__(self, size, link):
@@ -22,6 +23,7 @@ class Buffer:
         self.logger = logger
         self.logger.log_link_buffer_available_space(self.link.identifier, self.available_space)
 
+    """Places a packet in the buffer, or drops the packet if no space is available."""
     def put(self, packet, destination):
         if self.available_space >= packet.size:
             self.queue.put((packet, destination))
@@ -31,6 +33,7 @@ class Buffer:
         else:
             self.logger.log_link_dropped_packet_buffer_full(self.link.identifier, packet)
 
+    """Retrieves the next packet from the buffer in FIFO order."""
     def get(self):
         (packet, destination) = self.queue.get_nowait()
         self.available_space += packet.size
@@ -38,7 +41,7 @@ class Buffer:
         return (packet, destination)
 
 class Link:
-    """A network link from A to B.
+    """A network link between two Devices.
 
     Attributes:
         identifier: The unique identification of the link
@@ -48,7 +51,8 @@ class Link:
         deviceA: instance of Device
         deviceB: instance of Device
         busy: true when the link is actively transmitting
-        event_schedule: reference to global event scheduler
+        event_scheduler: reference to global event scheduler
+        logger: the Logger used by the link
     """
 
     def __init__(self, identifier, rate, delay, buffer_size, deviceA, deviceB):
@@ -74,6 +78,7 @@ class Link:
         self.logger = logger
         self.buffer.set_logger(logger)
 
+    """Given a device attached to this link, returns the other device attached to the link."""
     def other_device(self, device):
         if device == self.deviceA:
             return self.deviceB
@@ -82,6 +87,7 @@ class Link:
         else:
             sys.exit("Device {0} not attached to link {1}".format(device.identifier, self.identifier))
 
+    """Send a packet from one sender attached to the link to the other sender attached."""
     # Sends a packet instantly if the link is not busy
     # or enqueues the packet in the buffer if the link is busy
     def send_packet(self, packet, sender):
@@ -105,6 +111,7 @@ class Link:
         self.event_scheduler.delay_event(sending_delay + self.delay, PacketArrivalEvent(packet, recipient, self))
         self.event_scheduler.delay_event(sending_delay, LinkReadyEvent(self))
 
+    """Send a packet from the buffer, if possible."""
     # Called by LinkReadyEvent when the link is no longer busy
     def wake(self):
         self.busy = False

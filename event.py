@@ -5,6 +5,7 @@
 import sys
 
 class Event:
+    """Function implemented by concrete base classes of Event to perform their function."""
     def perform(self):
         sys.exit("Abstract method perform not implemented")
 
@@ -15,6 +16,7 @@ class PacketArrivalEvent(Event):
     Attributes:
         packet: the Packet that is being transmitted
         device: the Device on the other end of the link to which it's traveling
+        from_link: the Link on which the packet is arriving
     """
     def __init__(self, packet, device, from_link):
         self.packet = packet

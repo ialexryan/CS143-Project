@@ -1,6 +1,7 @@
 class Logger:
     """Singleton class, stores arrays of log entries, which are dictionaries.
-        Has methods for adding log entries to those dictionaries."""
+        Has methods for adding log entries to those dictionaries.
+	Logs to standard output depending on verbosity."""
 
     def __init__(self, clock, verbose, fast_insteadof_reno):
         self.clock = clock

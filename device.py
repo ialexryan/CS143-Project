@@ -5,7 +5,6 @@ class Device:
 
     Attributes:
         identifier: The unique identification of the device
-        clock: The global clock of the simulation
     """
 
     def __init__(self, identifier):
