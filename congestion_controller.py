@@ -32,7 +32,7 @@ class CongestionController:
     """
     def __init__(self):
         self.ssthresh = 50
-        self.cwnd = 1.0
+        self.cwnd = 2.0
         self.timeout = 1000
         self.not_acknowledged = dict()
         self.timed_out = []
@@ -83,6 +83,7 @@ class CongestionControllerReno(CongestionController):
         # If we have packets that have timed out, we want to retransmit these
         if len(self.timed_out) > 0:
             self.retransmit = True
+            self.cwnd /= 2
         else:
             self.retransmit = False
                 
@@ -115,7 +116,7 @@ class CongestionControllerReno(CongestionController):
             # This is not a duplicate acknowledgement
             else:
                 self.cwnd += 1 / self.cwnd
-                # reset duplicate count since the chain of dupACKS in broken
+                # reset duplicate count since the chain of dupACKS is broken
                 self.duplicate_count = 0
         elif self.state == fast_recovery:
             # Check if this is a duplicate acknowledgement
@@ -128,7 +129,7 @@ class CongestionControllerReno(CongestionController):
                 if packet.identifier == self.FR_packet:
                     self.cwnd = self.ssthresh
                     self.state = congestion_avoidance
-                # reset duplicate count since the chain of dupACKS in broken
+                # reset duplicate count since the chain of dupACKS is broken
                 self.duplicate_count = 0
 
         self.last_ack_received = packet.next_id
@@ -218,7 +219,7 @@ class CongestionControllerFast(CongestionController):
                 del self.not_acknowledged[(packet.next_id, expected[1])]
                 self.timed_out.append((packet.next_id, expected[1]))
         else:
-            # reset duplicate count since the chain of dupACKS in broken
+            # reset duplicate count since the chain of dupACKS is broken
             self.duplicate_count = 0
 
         self.last_ack_received = packet.next_id
@@ -247,6 +248,7 @@ class CongestionControllerFast(CongestionController):
                 self.timed_out.append((packet_id, dup_num))
         if len(self.timed_out) > 0:
             self.retransmit = True
+            self.cwnd /= 2
         else:
             self.retransmit = False
 
@@ -282,7 +284,8 @@ class CongestionControllerFast(CongestionController):
                 self.retransmit = True
             else:
                 self.retransmit = False
-
+                
+        self.cwnd /= 2
         self.send_packet() 
         self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))    
 
