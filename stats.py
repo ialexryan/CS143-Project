@@ -117,6 +117,7 @@ def display_dropped_packets(logger, size, index):
         plt.plot(c.keys(), c.values(), "o", label=flow_id)
     plt.xlabel("time, seconds")
     plt.ylabel("# of dropped packets")
+    plt.xlim(xmin=0)
     sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
     plt.legend(loc="upper right")
 
