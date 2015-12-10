@@ -47,7 +47,7 @@ class Logger:
     def log_flow_completed(self, flow_id):
         # if self.verbose:  tbh I think this should always print
         print str(self.clock) + ": Flow " + str(flow_id) + " completed"
-        self.flow_started_logs.append({
+        self.flow_completed_logs.append({
             "time" : self.clock.current_time,
             "flow_id" : flow_id
         })
