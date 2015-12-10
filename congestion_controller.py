@@ -162,21 +162,21 @@ class CongestionControllerReno(CongestionController):
         # Change from fast recovery to slow start phase
         if self.state == fast_recovery:
             self.state = slow_start
-        else:
-            # Keep track of timed out packets
-            for packet_id in self.not_acknowledged.keys():
-                sent_time = self.not_acknowledged[packet_id]
-                time_diff = self.clock.current_time - sent_time
-                if time_diff > self.timeout:
-                    del self.not_acknowledged[packet_id]
-                    self.timed_out.append(packet_id);
-            if len(self.timed_out) > 0:
-                self.retransmit = True
-            else:
-                self.retransmit = False            
+        else:       
             self.cwnd /= 2
-            self.send_packet()
-        self.wake_event = None        
+        # Keep track of timed out packets
+        for packet_id in self.not_acknowledged.keys():
+            sent_time = self.not_acknowledged[packet_id]
+            time_diff = self.clock.current_time - sent_time
+            if time_diff > self.timeout:
+                del self.not_acknowledged[packet_id]
+                self.timed_out.append(packet_id);
+                if len(self.timed_out) > 0:
+                    self.retransmit = True
+                else:
+                    self.retransmit = False
+        self.send_packet()
+        self.wake_event = self.event_scheduler.delay_event(self.timeout, FlowWakeEvent(self.flow))        
 
     def __str__(self):
         return ("ssthresh:    " + str(self.ssthresh) + "\n"
