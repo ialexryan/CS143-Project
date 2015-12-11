@@ -1,3 +1,7 @@
+# Do not edit directly!! The current master copy is here:
+# https://paper.dropbox.com/doc/Network-Simulator-0K57WCYg4H5zpiFDnHYPu
+# We will replace the README with the final version when ready.
+
 # Network Simulator
 
 ## General Information
