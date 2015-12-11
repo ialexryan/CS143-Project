@@ -10,9 +10,8 @@ BYTES_PER_KILOBYTE = 1024.0
 BYTES_PER_MEGABYTE = 1048576.0
 BYTES_PER_MEGABIT = 131072.0
 
-def read_testcases():
-    with open('testcases.json') as testcases_file:
-        return json.load(testcases_file)
+def read_testcase(file):
+    return json.load(file)
 
 def generate_simulation_from_testcase(input_dict, verbose, fast_insteadof_reno):
     links_info = input_dict["links"]
@@ -39,8 +38,6 @@ def generate_simulation_from_testcase(input_dict, verbose, fast_insteadof_reno):
         deviceA.attach_link(link)
         deviceB.attach_link(link)
         links[l["id"]] = link
-
-    testcase_num = input_dict["testcase_num"]
 
     flows = {}
     for f in flows_info:
