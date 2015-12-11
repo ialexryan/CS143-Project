@@ -6,26 +6,38 @@ from collections import Counter
 BYTES_PER_MEGABYTE = 1048576.0
 
 
-def block_average(input_times, input_values):   # input_times in milliseconds
+def block_average(input_times, input_values):   # input_times in milliseconds, return times in seconds
     assert(len(input_times) == len(input_values))
 
     output_times = []
     output_values = []
 
+    # add first data point
+    output_times.append(input_times.pop(0) / 1000.0)
+    output_values.append(input_values.pop(0))
+
     last_interval_start = 0;
     window_size = 100;   # milliseconds
-    current_window_count = 0;
+    current_window_count = 0.0;
     current_window_total = 0;
+
+    # add the rest of the averaged data points
     for i in range(len(input_times)):
         time = input_times[i]
+        if time - last_interval_start > window_size:
+            if current_window_count > 0:
+                output_times.append((last_interval_start + (window_size / 2)) / 1000.0)
+                output_values.append(current_window_total / current_window_count)
+            current_window_count = 0.0
+            current_window_total = 0
+            last_interval_start += window_size
         current_window_count += 1
         current_window_total += input_values[i]
-        if time - last_interval_start > window_size:
-            output_times.append((time - (window_size / 2)) / 1000.0)
-            output_values.append(current_window_total / current_window_count)
-            current_window_total = 0
-            current_window_count = 0
-            last_interval_start = time
+
+    # add last data point
+    output_times.append(input_times[-1] / 1000.0)
+    output_values.append(current_window_total / current_window_count)
+
     return (output_times, output_values)
 
 def display_total_buffer_space(logger, size, index):
