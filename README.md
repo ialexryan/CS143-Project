@@ -175,10 +175,13 @@ FAST TCP updates the window by calculating the RTT of the packet and saving the 
     After 20 seconds, flows 1 and 2 share link L1, and flows 1 and 3 share link L3, so these become the bottlenecks. There is no queue on link 2. We can write the RTT_min,3 as d3, the round trip propagation of flow 3, and we know that x3 = alpha / p3 (p3 = queueing delay on L3). Just like in the previous time frame, we can solve an equation to find p1 = 0.034 s, and p3 = 0.029s. The flow rates are x1 = 50/(p1 + p3) = 792 packets/s, and x2 = x3 = 50/p3 = 1724 packets/s. The queue length on L1 is 348 packets, and the queue length on L3 is 297 packets.
 ### Observed Results
 - Test Case 0:
+
     From our simulation results, we see that the average queue length for L1 is around 40 packets when we run TCP fast, which is similar to the expected queue length of 50 packets.
 - Test Case 1:
+
     For this test case, TCP simulation results show that the average queue length is 59 packets for Link L0, and this is similar compared to the expected length of 55 packets
 - Test Case 2:
+
     From our simulations, we can see the flow rate of F1 sharply decreases with the introduction of flow F2 at time 10s, and then there is a more gradual decrease in flow rate as F3 is introduced at 20s. This is due to the link capacity being divided among the flows. The flow rate of F2 also slightly decreases from its initial rate during the time period between after 20 seconds,This reflects the bottlenecks on links L1 and L3 that develop as multiple flows share the capacity of a single link. This aligns with the theoretical results we expect to see. 
     
 
