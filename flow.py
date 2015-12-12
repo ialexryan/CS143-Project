@@ -68,6 +68,7 @@ class Flow:
         self.controller.acknowledgement_received(packet)
         if (len(self.controller.not_acknowledged) == 0) and (not self.done):
             self.logger.log_flow_completed(self.identifier)
+	    self.done = True
 
     def completed(self):
         return self.done
