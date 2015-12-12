@@ -4,7 +4,9 @@ from matplotlib.ticker import MaxNLocator
 from collections import Counter
 from operator import itemgetter
 
+BYTES_PER_KILOBYTE = 1024.0
 BYTES_PER_MEGABYTE = 1048576.0
+BYTES_PER_MEGABIT = 131072.0
 
 
 def block_average(input_times, input_values):   # input_times in milliseconds, return times in seconds
@@ -41,6 +43,28 @@ def block_average(input_times, input_values):   # input_times in milliseconds, r
 
     return (output_times, output_values)
 
+def block_sum(input_times, input_values):
+    assert(len(input_times) == len(input_values))
+
+    output_times = []
+    output_values = []
+
+    last_interval_start = 0;
+    window_size = 100;   # milliseconds
+    current_window_total = 0;
+
+    for i in range(len(input_times)):
+        time = input_times[i]
+        if time - last_interval_start > window_size:
+            output_times.append((last_interval_start + (window_size / 2)) / 1000.0)
+            output_values.append(current_window_total)
+            current_window_total = 0
+            last_interval_start += window_size
+        current_window_total += input_values[i]
+
+    return (output_times, output_values)
+
+
 def display_total_buffer_space(logger, size, index):
     plt.subplot(size, 1, index)
     time = []
@@ -56,7 +80,7 @@ def display_total_buffer_space(logger, size, index):
     plt.ylim(ymin=0)
     plt.title("100ms average of total free buffer space")
 
-def display_total_amount_left(logger, size, index):
+def display_amounts_left(logger, size, index):
     plt.subplot(size, 1, index)
     graphs = {}  # keys are flow_id, values are [(time, amount_left)]
     for log in logger.flow_received_acknowledgement_logs:
@@ -139,7 +163,26 @@ def display_dropped_packets(logger, size, index):
     # sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
     plt.legend(loc="upper right")
 
-graph_functions = [display_total_buffer_space, display_total_amount_left, display_packet_round_trip_time, display_dropped_packets]
+def display_link_rate(logger, size, index):
+    sp = plt.subplot(size, 1, index)
+
+    graphs = {}  # keys are link_id, values are [(time, bytes_sent)]
+    for log in logger.link_sent_packet_immediately_logs + logger.link_sent_packet_from_buffer_logs:
+        graphs.setdefault(log["link_id"], []).append((log["time"], log["packet"].size))
+
+    for dropper_id, dropper_data in graphs.iteritems():
+        dropper_data.sort(key=itemgetter(0))   # sort by time
+        times, bytes_sent = [list(c) for c in zip(*dropper_data)]  # convert [(time, bytes_sent)] to [time] and [bytes_sent]
+        x, y = block_sum(times, bytes_sent)
+        y = [i * 10 / BYTES_PER_MEGABIT for i in y]  # Convert the graph from bytes/100ms to Mb/s
+        plt.plot(x, y, label=dropper_id)
+    plt.xlabel("time, seconds")
+    plt.ylabel("Mb/s")
+    plt.xlim(xmin=0)
+    # sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
+    plt.legend(loc="upper right")
+
+graph_functions = [display_total_buffer_space, display_amounts_left, display_packet_round_trip_time, display_dropped_packets, display_link_rate]
 
 def show_graphs(logger):
     i = 1
