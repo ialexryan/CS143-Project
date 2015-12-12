@@ -10,4 +10,4 @@ class Clock:
         self.current_time = time
 
     def __str__(self):
-        return str(self.current_time / 1000) + "s"
+        return "{0:.2f}s".format((self.current_time / 1000))

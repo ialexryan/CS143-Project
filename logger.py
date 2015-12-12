@@ -1,3 +1,5 @@
+import sys
+
 class Logger:
     """Singleton class, stores arrays of log entries, which are dictionaries.
         Has methods for adding log entries to those dictionaries.
@@ -20,14 +22,14 @@ class Logger:
         self.link_sent_packet_from_buffer_logs = []
 
     def log_flow_started(self, flow_id):
-        print str(self.clock) + ": Flow " + str(flow_id) + " started"
+        sys.stdout.write("\r" + str(self.clock) + ": Flow " + str(flow_id) + " started              \n")
         self.flow_started_logs.append({
             "time" : self.clock.current_time,
             "flow_id" : flow_id
         })
 
     def log_flow_completed(self, flow_id):
-        print str(self.clock) + ": Flow " + str(flow_id) + " completed"
+        sys.stdout.write("\r" + str(self.clock) + ": Flow " + str(flow_id) + " completed            \n")
         self.flow_completed_logs.append({
             "time" : self.clock.current_time,
             "flow_id" : flow_id

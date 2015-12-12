@@ -1,6 +1,6 @@
 import sys, Queue
 import stats
-from event import Event, FlowWakeEvent, RoutingUpdateEvent
+from event import Event, FlowWakeEvent, RoutingUpdateEvent, PrintElapsedSimulationTimeEvent
 from logger import Logger
 from clock import Clock
 from event_queue import EventQueue
@@ -48,6 +48,10 @@ class Simulation:
         self.logger = Logger(self.clock, verbose, fast_insteadof_reno)
         for item in flows.values() + links.values() + hosts.values() + routers.values():
             item.set_logger(self.logger)
+
+        # Set up PrintElapsedSimulationTimeEvents
+        if not verbose:  # combining this with verbose mode would be chaos.
+            self.event_queue.delay_event(0, PrintElapsedSimulationTimeEvent(self.clock.current_time, self.event_queue))
 
         print "Simulation started..."
 

@@ -6,13 +6,13 @@ import sys
 
 class Event:
     """Function implemented by concrete base classes of Event to perform their function.
-        
+
     Attributes:
         is_canceled: records whether an event has been canceled
     """
     def __init__(self):
         self.is_canceled = False
-    
+
     def perform(self):
         sys.exit("Abstract method perform not implemented")
 
@@ -80,3 +80,16 @@ class RoutingUpdateEvent(Event):
 
     def perform(self):
         self.host.send_routing_packet()
+
+class PrintElapsedSimulationTimeEvent(Event):
+    """This event is scheduled every 0.2 seconds (in simulation time) and updates
+        the terminal with the amount of time that has elapsed."""
+
+    def __init__(self, time, event_queue):
+        Event.__init__(self)
+        self.time = time
+        self.event_queue = event_queue
+
+    def perform(self):
+        sys.stderr.write('\rSimulation time: {0:.1f}s'.format(self.time / 1000.0))
+        self.event_queue.delay_event(200, PrintElapsedSimulationTimeEvent(self.time + 200, self.event_queue))
