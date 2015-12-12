@@ -41,6 +41,8 @@ class Flow:
 
     # Called by the FlowWakeEvent to allow the flow to continue sending packets
     def wake(self):
+	if self.logger.clock.current_time == self.start_time:
+	    self.logger.log_flow_started(self.identifier)
         self.controller.wake()
 
     def send_a_packet(self, packet_id, duplicate_num):
@@ -62,8 +64,9 @@ class Flow:
         self.ack_tracker.account_for_packet(packet.identifier)
         self.amount = self.total - self.ack_tracker.total_count_received() * packet.payload_size
         self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
-        #self.send_a_packet()
         self.controller.acknowledgement_received(packet)
+        if self.amount == 0:
+            self.logger.log_flow_completed(self.identifier)
 
     def completed(self):
         return self.amount == 0
