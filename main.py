@@ -13,5 +13,6 @@ results = parser.parse_args()
 
 sim = generate_simulation_from_testcase(read_testcase(results.testcase_file), results.verbose, results.fast_insteadof_reno)
 sim.run()
+print "Generating graphs..."
 if results.show_graphs:
     stats.show_graphs(sim.logger)
