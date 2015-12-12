@@ -65,23 +65,24 @@ def block_sum(input_times, input_values):
     return (output_times, output_values)
 
 
-def display_total_buffer_space(logger, size, index):
-    plt.subplot(size, 1, index)
-    time = []
-    space = []
+def display_free_buffers_space(logger, num_plots, index):
+    plt.subplot(num_plots / 2 + 1, 2, index)
+
+    graphs = {}  # keys are link_id, values are [(time, available_space)]
     for log in logger.link_buffer_available_space_logs:
-        time.append(log["time"])
-        space.append(log["available_space"])
-    x, y = block_average(time, space)
-    plt.plot(x, y)
+        graphs.setdefault(log["link_id"], []).append((log["time"], log["available_space"] / BYTES_PER_KILOBYTE))
+    for link_id, link_data in graphs.iteritems():
+        times, spaces = [list(c) for c in zip(*link_data)]  # convert [(time, available_space)] to [time] and [available_space]
+        x, y = block_average(times, spaces)
+        plt.plot(x, y, label=link_id)
     plt.xlabel("time, seconds")
-    plt.ylabel("total free buffer space, bytes")
+    plt.ylabel("free buffer space, KB")
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
-    plt.title("100ms average of total free buffer space")
+    plt.legend(loc='lower left', fontsize=8, ncol=3, fancybox=True)
 
-def display_amounts_left(logger, size, index):
-    plt.subplot(size, 1, index)
+def display_amounts_left(logger, num_plots, index):
+    plt.subplot(-(-num_plots // 2), 2, index)
     graphs = {}  # keys are flow_id, values are [(time, amount_left)]
     for log in logger.flow_received_acknowledgement_logs:
         graphs.setdefault(log["flow_id"], []).append((log["time"], log["amount_left"] / BYTES_PER_MEGABYTE))
@@ -90,13 +91,13 @@ def display_amounts_left(logger, size, index):
         x, y = block_average(times, remaining)
         plt.plot(x, y, label=flow_id)
     plt.xlabel("time, seconds")
-    plt.ylabel("total amount left to transmit, MB")
+    plt.ylabel("amount left to transmit, MB")
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
-    plt.legend(loc='upper right')
+    plt.legend(loc='upper right', fontsize=8, fancybox=True)
 
-def display_packet_round_trip_time(logger, size, index):
-    plt.subplot(size, 1, index)
+def display_packet_round_trip_time(logger, num_plots, index):
+    plt.subplot(-(-num_plots // 2), 2, index)
 
     # The tricky bit here is that we have to account for sending
     # the same packet id multiple times in the case of dropped packets.
@@ -132,13 +133,12 @@ def display_packet_round_trip_time(logger, size, index):
         plt.plot(x, y, label=flow_id)
     plt.xlabel("time, seconds")
     plt.ylabel("RTT, ms")
-    plt.title("100ms average of RTT time per flow")
     plt.xlim(xmin=0)
     plt.ylim(ymin=0)
-    plt.legend(loc="lower right")
+    plt.legend(loc="center right", fontsize=8, fancybox=True)
 
-def display_dropped_packets(logger, size, index):
-    sp = plt.subplot(size, 1, index)
+def display_dropped_packets(logger, num_plots, index):
+    sp = plt.subplot(-(-num_plots // 2), 2, index)
 
     graphs = {}  # keys are link_id/router_id, values are [(time, num_dropped)]
     for log in logger.router_dropped_packet_unknown_path_logs:
@@ -161,10 +161,10 @@ def display_dropped_packets(logger, size, index):
     plt.ylabel("fraction of packets dropped")
     plt.xlim(xmin=0)
     # sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
-    plt.legend(loc="upper right")
+    plt.legend(loc="upper right", fontsize=8, fancybox=True)
 
-def display_link_rate(logger, size, index):
-    sp = plt.subplot(size, 1, index)
+def display_link_rate(logger, num_plots, index):
+    sp = plt.subplot(-(-num_plots // 2), 2, index)
 
     graphs = {}  # keys are link_id, values are [(time, bytes_sent)]
     for log in logger.link_sent_packet_immediately_logs + logger.link_sent_packet_from_buffer_logs:
@@ -180,15 +180,15 @@ def display_link_rate(logger, size, index):
     plt.ylabel("Mb/s")
     plt.xlim(xmin=0)
     # sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
-    plt.legend(loc="upper right")
+    plt.legend(loc="lower center", fontsize=8, ncol=3, fancybox=True)
 
-graph_functions = [display_total_buffer_space, display_amounts_left, display_packet_round_trip_time, display_dropped_packets, display_link_rate]
+graph_functions = [display_free_buffers_space, display_amounts_left, display_packet_round_trip_time, display_dropped_packets, display_link_rate]
 
 def show_graphs(logger):
     i = 1
-    size = len(graph_functions)
+    num_plots = len(graph_functions)
     for f in graph_functions:
-        f(logger, size, i)
+        f(logger, num_plots, i)
         i += 1
     fig = plt.gcf()
     fig.canvas.set_window_title("TCP Fast" if logger.fast_insteadof_reno else "TCP Reno")
