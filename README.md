@@ -102,6 +102,7 @@ The event queue is a critical component to the discrete event-based simulation i
 - `LinkReadyEvent` corresponds with a link being available to send another packet from its buffer as the previous packet is done being sent and is currently traveling across the link. When performed, this event will notify the link that it may check send another packet from its buffer.
 - `FlowWakeEvent` wakes the flow up for the first time and begins sending packets. An instance of this event is added to the event queue to ensure that a `Flow` wakes up again after it times out even if it doesn’t ever get woken up by an acknowledgement.
 - `RoutingUpdateEvent` is a periodic trigger that instructs its associated host to send a routing packet. When performed, the host sends a `RoutingPacket` which propagates through the network, allowing routers to update their routing tables.
+
 ### Logging
 
 All elements in the simulation have a reference to the shared instance of the Logger class, and log events as they happen in the simulation. The Logger class has specific hardcoded functions for each type of event logged, and separate arrays that store the logged data of each event type. This approach reduces development flexibility in logging but ensures consistency in logged data and eliminates the chance of typos present in a logging approach where event types are stored as strings.
@@ -150,8 +151,6 @@ Window size is updated when an acknowledgement is received or when a packet gets
 FAST TCP updates the window by calculating the RTT of the packet and saving the minimum RTT encountered. The new window size equals the old window size times RTT_min and divided by the packet’s RTT. Some constant alpha is added to it for affect how window size changes over time. Incorrect RTT times due to the possibility of an acknowledgement from a supposedly dropped packet coming in right after the packet is resent is dealt with by differentiating between duplicate packets. The packets have a duplicate number, and the duplicate number of the acknowledgement must match the duplicate number of the packet in the list of unacknowledged packets for the packet to get checked off.
 
 ## Analysis
-  Graph Results
-  Simulation Times
 ### Theoretical Results
 - Test Case 0:
 
@@ -169,11 +168,7 @@ FAST TCP updates the window by calculating the RTT of the packet and saving the 
       
     Then, from 0.5 s - 10 s, there is only flow 1 in the network, so we apply the same reasoning we used to analyze throughput in the previous sections. F1 uses up all the capacity of links L1, L2, L3, resulting in a steady state throughput of 10240 packets/s, and gives the same queue length for L1 as in Test Case 0  (50 packets), with a queueing delay of 4.9 milliseconds. There is no queue on links L2, L3.
 
-
-
     Between 10–20 seconds, flows 1 and 2 share link L1, which becomes the bottleneck. There are no queues on links L2 and L3. Flow F2 knows its minimum round trip time (RTT_min,2) = d2 + 4.9 ms, where d2 is the round trip propagation delay of the flow, and 4.9 ms is the  queueing delay, q1, of a previously started flow, F1. The throughput x2, of flow 2 is equal to a/(q2 - q1), and a/(p1 - q1), where p1 is the queueing delay on link L1. We can also use the fact that x1 + x2 = 10240, to derive that p1 = 0.043 seconds. As a result, we can  see that the queue length of L1 is approximately 440 packets.
-
-
 
     After 20 seconds, flows 1 and 2 share link L1, and flows 1 and 3 share link L3, so these become the bottlenecks. There is no queue on link 2. We can write the RTT_min,3 as d3, the round trip propagation of flow 3, and we know that x3 = alpha / p3 (p3 = queueing delay on L3). Just like in the previous time frame, we can solve an equation to find p1 = 0.034 s, and p3 = 0.029s. The flow rates are x1 = 50/(p1 + p3) = 792 packets/s, and x2 = x3 = 50/p3 = 1724 packets/s. The queue length on L1 is 348 packets, and the queue length on L3 is 297 packets.
 ### Observed Results
@@ -187,9 +182,6 @@ FAST TCP updates the window by calculating the RTT of the packet and saving the 
 
     From our simulations, we can see the flow rate of F1 sharply decreases with the introduction of flow F2 at time 10s, and then there is a more gradual decrease in flow rate as F3 is introduced at 20s. This is due to the link capacity being divided among the flows. The flow rate of F2 also slightly decreases from its initial rate during the time period between after 20 seconds,This reflects the bottlenecks on links L1 and L3 that develop as multiple flows share the capacity of a single link. This aligns with the theoretical results we expect to see. 
     
-
-
-
 ## Work Process
 ### Version Control
 
