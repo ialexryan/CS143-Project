@@ -154,12 +154,15 @@ FAST TCP updates the window by calculating the RTT of the packet and saving the 
   Simulation Times
 ### Theoretical Results
 - Test Case 0:
+
     In this case, there is only one flow running from one host to another. So, this flow uses up all the capacity of link L1, giving a throughput of 10 Mbps.The queueing delay of the flow is now equal to the value of alpha used in the window update rule, divided by the throughput of the flow (in packets/second).  Since flow-generated data packets are 1024 bytes, our throughput is 10240 packets/s, and the value of alpha we have used in our TCP-fast algorithm is 50.0. So, the queueing delay of the flow is 4.9 ms, and the queue length of L1 becomes throughput * queueing delay = 50 packets.
     
 - Test Case 1:
+
     Just like test case 0, there is still only 1 flow, F1, but now there are links L0-L5, instead of just 1 link connecting 2 hosts. There are 2 different branches in this network, the top one consisting of links L0, L1, L3, L5 and the bottom branch has links L0, L2, L4, L5. F1 uses up all the capacity of one of these branches, and averaging the link rates of the links in a branch gives a throughput of 11.25 Mbps, or 11520 packets/s.  Only L0 will have a queue, and the queuing delay equals 4.3 ms. The queue length on L1 is 55 packets.
     
 - Test Case 2:
+
     In this case, there are 3 different flows, F1, F2, and F3, that all interact with each other, and begin at different times. F1 starts at 0.5 seconds, F2 starts at 10 seconds, and F3 starts at 20 seconds. We can now calculate the steady state throughput of each flow, and queueing delay in each link.
       
     Between 0–0.5 seconds, there are no flows in the network.
