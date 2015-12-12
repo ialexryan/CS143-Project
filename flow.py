@@ -22,6 +22,7 @@ class Flow:
         self.destination = destination
         self.amount = amount
         self.total = amount
+	self.done = False
         self.start_time = start_time
         self.event_scheduler = None
         self.logger = None
@@ -65,8 +66,8 @@ class Flow:
         self.amount = self.total - self.ack_tracker.total_count_received() * packet.payload_size
         self.logger.log_flow_received_acknowledgement(self.identifier, packet, self.amount)
         self.controller.acknowledgement_received(packet)
-        if self.amount == 0:
+        if (len(self.controller.not_acknowledged) == 0) and (not self.done):
             self.logger.log_flow_completed(self.identifier)
 
     def completed(self):
-        return self.amount == 0
+        return self.done
