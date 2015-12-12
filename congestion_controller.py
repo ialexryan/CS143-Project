@@ -200,7 +200,7 @@ class CongestionControllerFast(CongestionController):
 
     def __init__(self):
         CongestionController.__init__(self)
-        self.alpha = 10.0
+        self.alpha = 50.0
         self.base_RTT = -1
     
     '''Processes an acknowledgement packet and update window size for FAST TCP'''
