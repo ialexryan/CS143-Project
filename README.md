@@ -121,9 +121,9 @@ Some types of log events occur tens of thousands of times per simulation. In ord
 
 ## Graphics
 ### Class Usage Hierachy
-![image](https://d2mxuefqeaa7sj.cloudfront.net/s_1A0F52981E7D462F50FC01ACB39F630A3DBD18B7BE664EFBD929EF40DBE989CD_1449823786089_classes.png)
+![image](https://cloud.githubusercontent.com/assets/2292782/11760155/d8c241a8-a043-11e5-9b3d-8d1520b06dab.png)
 ### Include Hierarchy
-![image](https://d2mxuefqeaa7sj.cloudfront.net/s_1A0F52981E7D462F50FC01ACB39F630A3DBD18B7BE664EFBD929EF40DBE989CD_1449823811194_packages.png)
+![image](https://cloud.githubusercontent.com/assets/2292782/11760156/d8c5960a-a043-11e5-8c46-dbfd63bd3552.png)
 ## Algorithm Implementation
 ### Dynamic Routing
 
@@ -155,17 +155,17 @@ FAST TCP updates the window by calculating the RTT of the packet and saving the 
 - Test Case 0:
 
     In this case, there is only one flow running from one host to another. So, this flow uses up all the capacity of link L1, giving a throughput of 10 Mbps.The queueing delay of the flow is now equal to the value of alpha used in the window update rule, divided by the throughput of the flow (in packets/second).  Since flow-generated data packets are 1024 bytes, our throughput is 10240 packets/s, and the value of alpha we have used in our TCP-fast algorithm is 50.0. So, the queueing delay of the flow is 4.9 ms, and the queue length of L1 becomes throughput * queueing delay = 50 packets.
-    
+
 - Test Case 1:
 
     Just like test case 0, there is still only 1 flow, F1, but now there are links L0-L5, instead of just 1 link connecting 2 hosts. There are 2 different branches in this network, the top one consisting of links L0, L1, L3, L5 and the bottom branch has links L0, L2, L4, L5. F1 uses up all the capacity of one of these branches, and averaging the link rates of the links in a branch gives a throughput of 11.25 Mbps, or 11520 packets/s.  Only L0 will have a queue, and the queuing delay equals 4.3 ms. The queue length on L1 is 55 packets.
-    
+
 - Test Case 2:
 
     In this case, there are 3 different flows, F1, F2, and F3, that all interact with each other, and begin at different times. F1 starts at 0.5 seconds, F2 starts at 10 seconds, and F3 starts at 20 seconds. We can now calculate the steady state throughput of each flow, and queueing delay in each link.
-      
+
     Between 0–0.5 seconds, there are no flows in the network.
-      
+
     Then, from 0.5 s - 10 s, there is only flow 1 in the network, so we apply the same reasoning we used to analyze throughput in the previous sections. F1 uses up all the capacity of links L1, L2, L3, resulting in a steady state throughput of 10240 packets/s, and gives the same queue length for L1 as in Test Case 0  (50 packets), with a queueing delay of 4.9 milliseconds. There is no queue on links L2, L3.
 
     Between 10–20 seconds, flows 1 and 2 share link L1, which becomes the bottleneck. There are no queues on links L2 and L3. Flow F2 knows its minimum round trip time (RTT_min,2) = d2 + 4.9 ms, where d2 is the round trip propagation delay of the flow, and 4.9 ms is the  queueing delay, q1, of a previously started flow, F1. The throughput x2, of flow 2 is equal to a/(q2 - q1), and a/(p1 - q1), where p1 is the queueing delay on link L1. We can also use the fact that x1 + x2 = 10240, to derive that p1 = 0.043 seconds. As a result, we can  see that the queue length of L1 is approximately 440 packets.
@@ -174,14 +174,29 @@ FAST TCP updates the window by calculating the RTT of the packet and saving the 
 ### Observed Results
 - Test Case 0:
 
+![image](https://cloud.githubusercontent.com/assets/2292782/11760145/976c4690-a043-11e5-8ae2-55cee11b3718.png)
+*TCP Reno algorithm*
+![image](https://cloud.githubusercontent.com/assets/2292782/11760144/9759bad4-a043-11e5-92ff-da81149c51a9.png)
+*FAST TCP algorithm*
+
     From our simulation results, we see that the average queue length for L1 is around 40 packets when we run TCP fast, which is similar to the expected queue length of 50 packets.
 - Test Case 1:
+
+![image](https://cloud.githubusercontent.com/assets/2292782/11760147/977476c6-a043-11e5-8030-d7c4ab97a2f8.png)
+*TCP Reno algorithm*
+![image](https://cloud.githubusercontent.com/assets/2292782/11760149/9774dfb2-a043-11e5-824a-83ca553c3853.png)
+*FAST TCP algorithm*
 
     For this test case, TCP simulation results show that the average queue length is 59 packets for Link L0, and this is similar compared to the expected length of 55 packets
 - Test Case 2:
 
-    From our simulations, we can see the flow rate of F1 sharply decreases with the introduction of flow F2 at time 10s, and then there is a more gradual decrease in flow rate as F3 is introduced at 20s. This is due to the link capacity being divided among the flows. The flow rate of F2 also slightly decreases from its initial rate during the time period between after 20 seconds,This reflects the bottlenecks on links L1 and L3 that develop as multiple flows share the capacity of a single link. This aligns with the theoretical results we expect to see. 
-    
+![image](https://cloud.githubusercontent.com/assets/2292782/11760148/97749df4-a043-11e5-9988-96ffd5924275.png)
+*TCP Reno algorithm*
+![image](https://cloud.githubusercontent.com/assets/2292782/11760146/9772cb8c-a043-11e5-8130-50e67642ebfe.png)
+*FAST TCP algorithm*
+
+    From our simulations, we can see the flow rate of F1 sharply decreases with the introduction of flow F2 at time 10s, and then there is a more gradual decrease in flow rate as F3 is introduced at 20s. This is due to the link capacity being divided among the flows. The flow rate of F2 also slightly decreases from its initial rate during the time period between after 20 seconds,This reflects the bottlenecks on links L1 and L3 that develop as multiple flows share the capacity of a single link. This aligns with the theoretical results we expect to see.
+
 ## Work Process
 ### Version Control
 
