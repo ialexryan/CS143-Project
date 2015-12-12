@@ -2,30 +2,43 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import Counter
+from operator import itemgetter
 
 BYTES_PER_MEGABYTE = 1048576.0
 
 
-def block_average(input_times, input_values):   # input_times in milliseconds
+def block_average(input_times, input_values):   # input_times in milliseconds, return times in seconds
     assert(len(input_times) == len(input_values))
 
     output_times = []
     output_values = []
 
+    # add first data point
+    output_times.append(input_times.pop(0) / 1000.0)
+    output_values.append(input_values.pop(0))
+
     last_interval_start = 0;
     window_size = 100;   # milliseconds
-    current_window_count = 0;
+    current_window_count = 0.0;
     current_window_total = 0;
+
+    # add the rest of the averaged data points
     for i in range(len(input_times)):
         time = input_times[i]
+        if time - last_interval_start > window_size:
+            if current_window_count > 0:
+                output_times.append((last_interval_start + (window_size / 2)) / 1000.0)
+                output_values.append(current_window_total / current_window_count)
+            current_window_count = 0.0
+            current_window_total = 0
+            last_interval_start += window_size
         current_window_count += 1
         current_window_total += input_values[i]
-        if time - last_interval_start > window_size:
-            output_times.append((time - (window_size / 2)) / 1000.0)
-            output_values.append(current_window_total / current_window_count)
-            current_window_total = 0
-            current_window_count = 0
-            last_interval_start = time
+
+    # add last data point
+    output_times.append(input_times[-1] / 1000.0)
+    output_values.append(current_window_total / current_window_count)
+
     return (output_times, output_values)
 
 def display_total_buffer_space(logger, size, index):
@@ -49,11 +62,7 @@ def display_total_amount_left(logger, size, index):
     for log in logger.flow_received_acknowledgement_logs:
         graphs.setdefault(log["flow_id"], []).append((log["time"], log["amount_left"] / BYTES_PER_MEGABYTE))
     for flow_id, flow_data in graphs.iteritems():
-        times = []
-        remaining = []
-        for d in flow_data:
-            times.append(d[0])
-            remaining.append(d[1])
+        times, remaining = [list(c) for c in zip(*flow_data)]   # convert [(time, amount_left)] to [time] and [amount_left]
         x, y = block_average(times, remaining)
         plt.plot(x, y, label=flow_id)
     plt.xlabel("time, seconds")
@@ -107,18 +116,27 @@ def display_packet_round_trip_time(logger, size, index):
 def display_dropped_packets(logger, size, index):
     sp = plt.subplot(size, 1, index)
 
-    graphs = {}  # keys are link_id/router_id, values are [time]
-    for log in logger.link_dropped_packet_buffer_full_logs:
-        graphs.setdefault(log["link_id"], []).append(log["time"] / 1000.0)
+    graphs = {}  # keys are link_id/router_id, values are [(time, num_dropped)]
     for log in logger.router_dropped_packet_unknown_path_logs:
-        graphs.setdefault(log["router_id"], []).append(log["time"] / 1000.0)
-    for flow_id, flow_data in graphs.iteritems():
-        c = Counter(flow_data)  # keys are times, values are number of dropped packets
-        plt.plot(c.keys(), c.values(), "o", label=flow_id)
+        graphs.setdefault(log["router_id"], []).append((log["time"], 1))
+    for log in logger.router_sending_packet_logs:
+        if log["router_id"] in graphs:  # we only want to log unlost packets for links/routers that lost some packets
+            graphs[log["router_id"]].append((log["time"], 0))
+    for log in logger.link_dropped_packet_buffer_full_logs:
+        graphs.setdefault(log["link_id"], []).append((log["time"], 1))
+    for log in logger.link_sent_packet_immediately_logs + logger.link_sent_packet_from_buffer_logs:
+        if log["link_id"] in graphs:  # we only want to log unlost packets for links/routers that lost some packets
+            graphs[log["link_id"]].append((log["time"], 0))
+
+    for dropper_id, dropper_data in graphs.iteritems():
+        dropper_data.sort(key=itemgetter(0))   # sort by time
+        times, drops = [list(c) for c in zip(*dropper_data)]  # convert [(time, num_dropped)] to [time] and [num_dropped]
+        x, y = block_average(times, drops)
+        plt.plot(x, y, label=dropper_id)
     plt.xlabel("time, seconds")
-    plt.ylabel("# of dropped packets")
+    plt.ylabel("fraction of packets dropped")
     plt.xlim(xmin=0)
-    sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
+    # sp.yaxis.set_major_locator(MaxNLocator(integer=True))  # only show integer y-axis ticks
     plt.legend(loc="upper right")
 
 graph_functions = [display_total_buffer_space, display_total_amount_left, display_packet_round_trip_time, display_dropped_packets]
