@@ -159,7 +159,7 @@ In this case, there is only one flow running from one host to another. So, this 
 
 #### Test Case 1:
 
-Just like test case 0, there is still only 1 flow, F1, but now there are links L0-L5, instead of just 1 link connecting 2 hosts. There are 2 different branches in this network, the top one consisting of links L0, L1, L3, L5 and the bottom branch has links L0, L2, L4, L5. F1 uses up all the capacity of one of these branches, and averaging the link rates of the links in a branch gives a throughput of 11.25 Mbps, or 11520 packets/s.  Only L0 will have a queue, and the queuing delay equals 4.3 ms. The queue length on L1 is 55 packets.
+Just like test case 0, there is still only 1 flow, F1, but now there are links L0-L5, instead of just 1 link connecting 2 hosts. There are 2 different branches in this network, the top one consisting of links L0, L1, L3, L5 and the bottom branch has links L0, L2, L4, L5. F1 uses up all the capacity of one of these branches, and since the throughput is the link rate of the bottleneck, it is 10240 packets/s.  Only L1 or L2 will have a queue, and the queuing delay equals 4.9 ms. The queue length on either link is 50 packets.
 
 #### Test Case 2:
 
@@ -190,7 +190,7 @@ From our simulation results, we see that the average queue length for L1 is arou
 ![image](https://cloud.githubusercontent.com/assets/2292782/11760149/9774dfb2-a043-11e5-824a-83ca553c3853.png)
 *FAST TCP algorithm*
 
-For this test case, TCP simulation results show that the average queue length is 59 packets for Link L0, and this is similar compared to the expected length of 55 packets
+For this test case, TCP simulation results show that the average queue length is 59 packets for Link L1, but this is different compared to the expected length of 50 packets
 
 #### Test Case 2:
 
